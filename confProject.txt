@@ -1,0 +1,59 @@
+1 composer create-project --prefer-dist laravel/laravel my-vue-app
+2 npm install
+3 npm install vue
+4 npm install @vitejs/plugin-vue
+5 npm install -D tailwindcss postcss autoprefixer
+6 npx tailwind init -p
+7 npm install
+tailwind.config.js
+    module.exports = {
+      content: [
+        './resources/**/*.blade.php',
+        './resources/**/*.js',
+        './resources/**/*.vue',
+      ],
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    };
+app.css
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+vite.config.js
+    import { defineConfig } from 'vite';
+    import vue from '@vitejs/plugin-vue';
+    import laravel from 'laravel-vite-plugin';
+
+    export default defineConfig({
+      plugins: [
+        laravel({
+          input: ['resources/css/app.css', 'resources/js/app.js'],
+          refresh: true,
+        }),
+        vue(),
+      ],
+    });
+app.js
+    import { createApp } from 'vue';
+    import ExampleComponent from './components/ExampleComponent.vue';
+
+    createApp({
+      components: {
+        ExampleComponent,
+      },
+    }).mount('#app');
+
+иконки
+    npm install @heroicons/vue
+
+Для historyMode router vue необходимо настроить сервер на перенаправление на index.html
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
