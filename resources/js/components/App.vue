@@ -6,28 +6,31 @@
         </router-link>
         <nav>
             <ul class="flex space-x-1 text-white justify-center items-center">
-                <li class="flex group">
-                    <router-link to="/"
-                                 class="flex items-center px-5 py-2 rounded border border-cyan-950 hover:shadow-inner hover:border-cyan-800 transform transition-transform duration-200 ease-in w-36 h-12 group-hover:scale-95">
-                        Главная
-                        <img src="/public/icons/wolfWhite.png" alt="siteLogo" class="size-6 ml-2 hidden group-hover:block transition-opacity duration-200 ease-in" />
+                <li class="group relative">
+                    <router-link to="/main"
+                                 class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
+                        <span class="transform group-hover:translate-x-[-5px] transition-transform duration-300 ease-in">Главная</span>
+                        <img src="/public/icons/wolfWhite.png" alt="siteLogo" class="size-6 hidden group-hover:block delay-100 duration-300" />
                     </router-link>
                 </li>
-                <li class="flex group items-center justify-center">
+                <li class="group relative">
                     <router-link to="/login"
-                                 class="px-5 py-2 rounded border border-cyan-950 hover:shadow-inner hover:border-cyan-800 transform transition-transform duration-200 ease-in w-36 h-12 group-hover:scale-95">
-                        Вход
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 ml-2 hidden group-hover:block transition-opacity duration-200 ease-in">
+                                 class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
+                        <span class="transform group-hover:translate-x-[-5px] transition-transform duration-300 ease-in">Вход</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                             class="size-6 hidden group-hover:block delay-100 duration-300">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
                         </svg>
                     </router-link>
                 </li>
-                <li class="flex group">
+                <li class="group relative">
                     <router-link to="/contacts"
-                                 class="px-5 py-2 rounded border border-cyan-950 hover:shadow-inner hover:border-cyan-800 transform transition-transform duration-200 ease-in w-36 h-12 group-hover:scale-95">
-                        Контакты
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 ml-2 hidden group-hover:block transition-opacity duration-200 ease-in">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                                 class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
+                        <span class="group-hover:translate-x-[-5px] delay-100 duration-300">Контакты</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                             class="size-6 hidden group-hover:block delay-100 duration-300">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
                         </svg>
                     </router-link>
                 </li>
@@ -36,14 +39,18 @@
     </header>
 
         <div class="flex body p-4 flex-1">
+            <div v-if="$route.name === 'Main' || $route.name === 'Root'"
+                    class="flex items-center justify-center w-full">
+                <router-view></router-view>
+            </div>
             <!-- Conditional rendering for centering Login component -->
-            <div v-if="$route.name === 'Login' || $route.name === 'Register' || $route.name === 'EmailVerify' || $route.name === 'ForgotPassword'"
+            <div v-else-if="$route.name === 'Login' || $route.name === 'Register' || $route.name === 'EmailVerify' || $route.name === 'ForgotPassword'"
                     class="flex justify-center items-center flex-1">
                 <router-view></router-view>
             </div>
 
             <!-- General rendering for other components -->
-            <div v-else class="flex flex-1">
+            <div v-else class="">
                 <router-view></router-view>
             </div>
         </div>

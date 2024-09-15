@@ -11,6 +11,11 @@ import NewPassword from "../components/auth/NewPassword.vue";
 const routes = [
     {
         path: '/',
+        name: 'Root',
+        component: Main,
+    },
+    {
+        path: '/main',
         name: 'Main',
         component: Main,
     },
