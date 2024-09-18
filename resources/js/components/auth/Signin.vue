@@ -2,22 +2,22 @@
     <div class="flex justify-center items-center w-80">
         <div class="max-w-2xl w-full p-8 shadow-lg rounded-lg bg-gray-350">
             <h2 class="text-center text-2xl font-bold mb-6">Регистрация</h2>
-            <form class="space-y-6">
+            <form class="space-y-6" @submit.prevent="handleRegister">
                 <div>
                     <label for="login" class="block text-sm font-medium text-gray-700">Логин</label>
-                    <input id="login" type="text" placeholder="Введите логин"
+                    <input id="login" type="text" v-model="form.login" placeholder="Введите логин"
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md" />
                 </div>
 
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input id="email" type="email" placeholder="example@mail.ru"
+                    <input id="email" type="email" v-model="form.email" placeholder="example@mail.ru"
                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md" />
                 </div>
 
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Пароль</label>
-                    <input id="password" type="password" placeholder="Введите пароль"
+                    <input id="password" type="password" v-model="form.password" placeholder="Введите пароль"
                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md" />
                 </div>
 
@@ -46,8 +46,34 @@
     </div>
 </template>
 
+
 <script>
+    import {useUserStore} from "@/stores/user.js";
     export default {
-        name: 'Register'
+        name: 'Register',
+        setup() {
+            const userStore = useUserStore();
+        },
+        data() {
+            return {
+                form: {
+                    login: '',
+                    email: '',
+                    password: '',
+                    confirm_password: ''
+                },
+                responseMessage: ''
+            };
+        },
+        methods: {
+            async handleRegister() {
+                try {
+                    const response = await axios.post('/signin', this.form);
+                    this.responseMessage = 'Данные успешно отправлены';
+                } catch(error) {
+                    this.responseMessage = 'Ошибка отправления данных';
+                }
+            }
+        },
     };
 </script>
