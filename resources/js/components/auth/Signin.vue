@@ -17,13 +17,13 @@
 
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Пароль</label>
-                    <input id="password" type="password" v-model="form.password" placeholder="Введите пароль"
+                    <input id="password" name="password" type="password" v-model="form.password" placeholder="Введите пароль"
                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md" />
                 </div>
 
                 <div>
-                    <label for="confirm-password" class="block text-sm font-medium text-gray-700">Проверка пароля</label>
-                    <input id="confirm-password" type="password" placeholder="Подтвердите пароль"
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Проверка пароля</label>
+                    <input id="password_confirmation" name="passwordConfirmation" type="password" v-model="form.password_confirmation" placeholder="Подтвердите пароль"
                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md" />
                 </div>
 
@@ -48,30 +48,29 @@
 
 
 <script>
-    import {useUserStore} from "@/stores/user.js";
+    import { useUserStore } from "@/stores/user.js";
     export default {
         name: 'Register',
         setup() {
-            const userStore = useUserStore();
-        },
+            },
         data() {
             return {
                 form: {
                     login: '',
                     email: '',
                     password: '',
-                    confirm_password: ''
+                    password_confirmation: ''
                 },
                 responseMessage: ''
             };
         },
         methods: {
             async handleRegister() {
+                const userStore = useUserStore();
                 try {
-                    const response = await axios.post('/signin', this.form);
-                    this.responseMessage = 'Данные успешно отправлены';
-                } catch(error) {
-                    this.responseMessage = 'Ошибка отправления данных';
+                    await userStore.signin(this.form);
+                } catch (e) {
+                    console.error('Ошибка отправки данных: ', e);
                 }
             }
         },

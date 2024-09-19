@@ -27,7 +27,7 @@ class LoginController extends Controller
 
         if ($user && Hash::check($pswd, $user->password)) {
             Auth::login($user);
-            return response()->json(['message' => 'Login successful.']);
+            return response()->json(['message' => 'Feedback user', 'user' => $user->login]);
         } else {
             return response()->json(['message' => 'Invalid credentials.'], 401);
         }

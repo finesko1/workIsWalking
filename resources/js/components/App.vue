@@ -9,14 +9,18 @@
                 <li class="group relative">
                     <router-link to="/main"
                                  class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
-                        <span class="transform group-hover:translate-x-[-5px] transition-transform duration-300 ease-in">Главная</span>
+                        <span class="transform group-hover:translate-x-[-5px] transition-transform duration-300 ease-in">
+                            Главная
+                        </span>
                         <img src="/public/icons/wolfWhite.png" alt="siteLogo" class="size-6 hidden group-hover:block delay-100 duration-300" />
                     </router-link>
                 </li>
-                <li class="group relative">
+                <li v-if="!isAuthenticated" class="group relative">
                     <router-link to="/login"
                                  class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
-                        <span class="transform group-hover:translate-x-[-5px] transition-transform duration-300 ease-in">Вход</span>
+                        <span class="transform group-hover:translate-x-[-5px] transition-transform duration-300 ease-in">
+                            Вход
+                        </span>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                              class="size-6 hidden group-hover:block delay-100 duration-300">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
@@ -26,7 +30,9 @@
                 <li class="group relative">
                     <router-link to="/contacts"
                                  class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
-                        <span class="group-hover:translate-x-[-5px] delay-100 duration-300">Контакты</span>
+                        <span class="group-hover:translate-x-[-5px] delay-100 duration-300">
+                            Контакты
+                        </span>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                              class="size-6 hidden group-hover:block delay-100 duration-300">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -34,9 +40,21 @@
                         </svg>
                     </router-link>
                 </li>
+                <li v-if="isAuthenticated" class="group relative">
+                    <button type="submit" @click="handleLogout"
+                                 class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
+                        <span class="group-hover:translate-x-[-5px] delay-100 duration-300">Выйти</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                             class="size-6 hidden group-hover:block delay-100 duration-300">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
+                        </svg>
+
+                    </button>
+                </li>
             </ul>
         </nav>
     </header>
+
 
         <div class="flex body p-4 flex-1">
             <div v-if="$route.name === 'Main' || $route.name === 'Root'"
@@ -44,7 +62,7 @@
                 <router-view></router-view>
             </div>
             <!-- Conditional rendering for centering Login component -->
-            <div v-else-if="$route.name === 'Login' || $route.name === 'Register' || $route.name === 'EmailVerify' || $route.name === 'ForgotPassword'"
+            <div v-else-if="$route.name === 'Login' || $route.name === 'Signin' || $route.name === 'EmailVerify' || $route.name === 'ForgotPassword'"
                     class="flex justify-center items-center flex-1">
                 <router-view></router-view>
             </div>
@@ -55,6 +73,7 @@
             </div>
         </div>
 
+
     <footer class="rounded-b-lg footer border-t-4 border-cyan-950 text-lg">
         <router-link to="/">
             <div class="text-center p-4 bg-cyan-800 text-white">Разработка системы управления обучением &copy2024</div>
@@ -64,16 +83,34 @@
 </template>
 
 <script>
-export default {
-    methods: {
-        login() {
-            // Логика для перехода на страницу входа
+import { onMounted } from "vue";
+import { useUserStore } from "@/stores/user.js";
+import { computed } from "vue";
+import { watch } from 'vue';
+    export default {
+        name: 'App',
+        setup() {
+            const userStore = useUserStore();
+
+            onMounted(async () => {
+                await userStore.checkAuth();
+            });
+
+            const handleLogout = async () => {
+                try {
+                    await userStore.logout();
+                } catch (e) {
+                    console.error('Ошибка отправки данных: ', e);
+                }
+            };
+
+            return {
+                user: userStore.user,
+                isAuthenticated: computed(() => userStore.isAuthenticated),
+                handleLogout,
+            };
         },
-        register() {
-            // Логика для перехода на страницу регистрации
-        }
-    }
-}
+    };
 </script>
 
 <style scoped>
