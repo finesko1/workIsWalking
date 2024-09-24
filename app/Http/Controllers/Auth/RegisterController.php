@@ -9,6 +9,7 @@ use App\Models\User;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class RegisterController extends Controller
 {
@@ -30,11 +31,18 @@ class RegisterController extends Controller
 
             // Вход пользователя
             Auth::loginUsingId($user->id);
-            return response()->json(['message' => 'User registered successfully.', 'user' => $user->login]);
-        } catch (\Exception $e) {
-            // Возвращение JSON-ответа с ошибкой
+            return response()->json(['message' => 'User registered successfully.']);
+        }
+        catch (ValidationException $e) {
             return response()->json([
-                'error' => 'An error occurred during registration. Please try again later.'
+                'message' => 'Validation failed.',
+                'errors' => $e->errors()
+            ], 422);
+        }
+            // Общая ошибка
+        catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred during registration. Please try again later.'
             ], 500);
         }
     }

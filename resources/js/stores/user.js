@@ -2,6 +2,7 @@
 import { defineStore } from "pinia";
 import { ref } from 'vue';
 import router from "@/router/index.js";
+import { showNotification, notificationState } from "@/notifications.js";
 
 export const useUserStore = defineStore('user', () => {
     const user = ref(null);
@@ -13,12 +14,14 @@ export const useUserStore = defineStore('user', () => {
             user.value = response.data.user;
             localStorage.setItem('isAuthenticated', 'true');
             isAuthenticated.value = true;
+            showNotification('Вход успешно выполнен!');
             router.push('/');
         } catch (e) {
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
             console.error('Ошибка при входе: ', e);
-            router.push('/');
+            showNotification('Вход не выполнен')
+            throw(e);
         }
     };
 
@@ -28,11 +31,13 @@ export const useUserStore = defineStore('user', () => {
             user.value = response.data.user;
             localStorage.setItem('isAuthenticated', 'true');
             isAuthenticated.value = true;
-            console.log(response.data.user);
+            showNotification('Регистрация прошла успешно!');
             router.push('/');
         } catch (e) {
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
+            showNotification('Ошибка регистрации!');
+            throw(e);
         }
     };
 
@@ -42,11 +47,14 @@ export const useUserStore = defineStore('user', () => {
             user.value = null;
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
+            showNotification('Выход успешно выполнен!');
             router.push('/');
         } catch (e) {
             localStorage.setItem('isAuthenticated', 'true');
             isAuthenticated.value = true;
             console.error('Ошибка при выходе: ', e);
+            showNotification('Выход не выполнен')
+            throw(e);
         }
     };
 
@@ -58,8 +66,9 @@ export const useUserStore = defineStore('user', () => {
             router.push('/');
         } catch (e) {
             user.value = null;
-            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
+            throw(e);
         }
     };
 

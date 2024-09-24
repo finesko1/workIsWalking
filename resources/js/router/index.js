@@ -8,7 +8,10 @@ import Signin from '../components/auth/Signin.vue';
 import ForgotPassword from '../components/auth/ForgotPassword.vue';
 import EmailVerify from "../components/auth/EmailVerify.vue";
 import NewPassword from "../components/auth/NewPassword.vue";
+import Profile from "../components/profile/Profile.vue";
+
 import {useUserStore} from "@/stores/user.js";
+
 
 const routes = [
     {
@@ -66,6 +69,11 @@ const routes = [
         path: '/newPassword',
         name: 'NewPassword',
         component: NewPassword
+    },
+    {
+        path: '/profile',
+        name: 'Profile',
+        component: Profile
     }
 ];
 

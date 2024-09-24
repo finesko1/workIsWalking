@@ -41,3 +41,15 @@ Route::get('/user', [CheckAuthController::class, 'checkAuth'])->name('user');
 
 // Выход
 Route::post('/logout', [LogoutController::class, 'destroy'])->name('logout');
+
+// Контакты сайта
+Route::get('/contacts', function() {
+    return redirect('/');
+});
+Route::get('/main', function() {
+    return redirect('/');
+});
+// Профиль пользователя
+Route::get('/profile', function() {
+    return redirect('/');
+});

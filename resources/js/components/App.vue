@@ -7,6 +7,26 @@
         <nav>
             <ul class="flex space-x-1 text-white justify-center items-center">
                 <li class="group relative">
+                    <router-link to="/profile" class="flex items-center group transition-all delay-100 duration-300 ease-in">
+                        <div class="flex items-center">
+                            <!-- Текст "Профиль" -->
+                            <div class="profile-text opacity-0 transform transition-transform ease-in-out translate-x-16 group-hover:translate-x-[-16] group-hover:opacity-100 duration-300">
+                                <span class="bg-cyan-800 text-white p-2 mr-0 border-r-0 rounded group-hover:shadow-inner group-hover:shadow-cyan-900 hover:border-cyan-800">Профиль</span>
+                            </div>
+                        </div>
+                        <div class="w-14 h-14 rounded-full overflow-hidden group-hover:scale-95 transform transition-all delay-100 duration-300 ease-in relative">
+                            <img v-if="user.profilePhoto" :src="user.profilePhoto" alt="Profile photo"
+                                 class="w-full h-full object-cover" />
+                            <div v-else class="flex items-center justify-center w-full h-full text-white border border-cyan-900 bg-cyan-800 p-2 rounded-full ease-in-out hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                     class="w-12 h-12 text-white group-hover:scale-90 transform transition-all delay-100 duration-300">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </router-link>
+                </li>
+                <li class="group relative">
                     <router-link to="/main"
                                  class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
                         <span class="transform group-hover:translate-x-[-5px] transition-transform duration-300 ease-in">
@@ -43,15 +63,24 @@
                 <li v-if="isAuthenticated" class="group relative">
                     <button type="submit" @click="handleLogout"
                                  class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
-                        <span class="group-hover:translate-x-[-5px] delay-100 duration-300">Выйти</span>
+                        <span class="group-hover:translate-x-[-5px] delay-100 duration-300 group-hover:text-red-300">
+                            Выйти
+                        </span>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                              class="size-6 hidden group-hover:block delay-100 duration-300">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
                         </svg>
-
                     </button>
                 </li>
             </ul>
+            <!-- Уведомления -->
+            <div v-if="hasNotification"
+                 class="notification fixed inset-x-0 top-32 flex justify-center z-50">
+                <div class="text-green-700 border-green-700 ring-2 ring-green-600 p-2 w-1/6 max-w-md rounded-lg shadow-lg">
+                    <p class="text-center text-md font-semibold">{{ msgNotification }}</p>
+                </div>
+            </div>
+
         </nav>
     </header>
 
@@ -76,41 +105,48 @@
 
     <footer class="rounded-b-lg footer border-t-4 border-cyan-950 text-lg">
         <router-link to="/">
-            <div class="text-center p-4 bg-cyan-800 text-white">Разработка системы управления обучением &copy2024</div>
+            <div class="text-center p-4 bg-cyan-800 text-white">Система управления обучением &copy2024</div>
         </router-link>
     </footer>
     </div>
 </template>
 
 <script>
-import { onMounted } from "vue";
+import { ref, onMounted, computed, nextTick } from "vue";
 import { useUserStore } from "@/stores/user.js";
-import { computed } from "vue";
-import { watch } from 'vue';
-    export default {
-        name: 'App',
-        setup() {
-            const userStore = useUserStore();
+import { showNotification, notificationState } from "@/notifications.js";
 
-            onMounted(async () => {
-                await userStore.checkAuth();
-            });
+export default {
+    name: 'App',
+    data() {
+        return {
+            user: {
+                profilePhoto : '',
+            },
+        };
+    },
+    setup() {
+        const userStore = useUserStore();
+        onMounted(async () => {
+            await userStore.checkAuth();
+        });
 
-            const handleLogout = async () => {
-                try {
-                    await userStore.logout();
-                } catch (e) {
-                    console.error('Ошибка отправки данных: ', e);
-                }
-            };
+        const handleLogout = async () => {
+            try {
+                await userStore.logout();
+            } catch (e) {
+                console.error('Ошибка отправки данных: ', e);
+            }
+        };
 
-            return {
-                user: userStore.user,
-                isAuthenticated: computed(() => userStore.isAuthenticated),
-                handleLogout,
-            };
-        },
-    };
+        return {
+            isAuthenticated: computed(() => userStore.isAuthenticated),
+            handleLogout,
+            showNotification,
+            ...notificationState,
+        };
+    }
+};
 </script>
 
 <style scoped>
