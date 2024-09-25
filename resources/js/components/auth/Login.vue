@@ -45,34 +45,55 @@
 </template>
 
 <script>
-import { useUserStore } from '@/stores/user.js';
+import { ref, onMounted, watch } from 'vue';
+import { useUserStore } from "@/stores/user.js";
+import { useFormStore } from '@/stores/formStore.js';
+
 export default {
-      name: 'Login',
-      data() {
-          return {
-              form : {
-                  login: '',
-                  password: ''
-              },
-              errors: {}
-          }
-      },
-      methods: {
-          async handleLogin() {
-              const userStore = useUserStore();
-              try {
-                  this.errors = {};
-                  await userStore.login(this.form);
-              } catch (e) {
-                  // Валидация данных формы
-                  if(e.response && e.response.status === 422) {
-                      this.errors = e.response.data.errors;
-                      console.log(this.errors);
-                  } else {
-                      console.error('Ошибка отправки данных: ', e);
-                  }
-              }
-          }
-      }
-  };
+    name: 'Login',
+    setup() {
+        const userStore = useUserStore();
+        const formStore = useFormStore();
+        const form = ref({
+            login: '',
+            password: ''
+        });
+        const errors = ref({});
+
+        onMounted(() => {
+            const savedData = formStore.loadFormData(['login', 'password']);
+            form.value = { ...form.value, ...savedData };
+        });
+
+        // Сохраняем данные формы при их изменении
+        watch(form, (newValue) => {
+            formStore.saveFormData(newValue);
+        }, { deep: true });
+
+        const handleLogin = async () => {
+            try {
+                errors.value = {};
+                await userStore.login(form.value);
+            } catch (e) {
+                if (e.response && e.response.status === 422) {
+                    errors.value = e.response.data.errors;
+                    console.log(errors.value);
+                } else {
+                    console.error('Ошибка отправки данных: ', e);
+                }
+            }
+        };
+
+        return {
+            form,
+            errors,
+            handleLogin,
+        };
+    },
+    beforeRouteLeave(to, from, next) {
+        const formStore = useFormStore();
+        formStore.clearFormData(['login', 'password']); // Очищаем при смене URL
+        next();
+    }
+};
 </script>

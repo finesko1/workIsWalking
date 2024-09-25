@@ -6,7 +6,7 @@
         </router-link>
         <nav>
             <ul class="flex space-x-1 text-white justify-center items-center">
-                <li class="group relative">
+                <li v-if="isAuthenticated" class="group relative">
                     <router-link to="/profile" class="flex items-center group transition-all delay-100 duration-300 ease-in">
                         <div class="flex items-center">
                             <!-- Текст "Профиль" -->
@@ -73,10 +73,18 @@
                     </button>
                 </li>
             </ul>
+
+
             <!-- Уведомления -->
-            <div v-if="hasNotification"
+            <div v-if="hasSuccessNotification"
                  class="notification fixed inset-x-0 top-32 flex justify-center z-50">
                 <div class="text-green-700 border-green-700 ring-2 ring-green-600 p-2 w-1/6 max-w-md rounded-lg shadow-lg">
+                    <p class="text-center text-md font-semibold">{{ msgNotification }}</p>
+                </div>
+            </div>
+            <div v-if="hasErrorNotification"
+                 class="notification fixed inset-x-0 top-32 flex justify-center z-50">
+                <div class="text-red-700 border-red-700 ring-2 ring-red-600 p-2 w-1/6 max-w-md rounded-lg shadow-lg">
                     <p class="text-center text-md font-semibold">{{ msgNotification }}</p>
                 </div>
             </div>
@@ -97,8 +105,8 @@
             </div>
 
             <!-- General rendering for other components -->
-            <div v-else class="">
-                <router-view></router-view>
+            <div v-else class="flex flex-col w-full">
+                <router-view class="flex-1"></router-view>
             </div>
         </div>
 
@@ -115,6 +123,8 @@
 import { ref, onMounted, computed, nextTick } from "vue";
 import { useUserStore } from "@/stores/user.js";
 import { showNotification, notificationState } from "@/notifications.js";
+import { useRouterStore } from "@/stores/routerstore.js";
+import router from '@/router';
 
 export default {
     name: 'App',
@@ -127,7 +137,20 @@ export default {
     },
     setup() {
         const userStore = useUserStore();
+        const routerStore = useRouterStore();
         onMounted(async () => {
+            // Сначала загружаем сохраненный маршрут
+            const lastVisitedRoute = routerStore.lastVisitedRoute || '/';
+
+            // Проверка, существует ли маршрут
+            const routeExists = router.getRoutes().some(route => route.path === lastVisitedRoute);
+
+            if (routeExists) {
+                // Переход на последний сохраненный маршрут
+                router.push(lastVisitedRoute);
+            }
+
+            // Проверяем аутентификацию пользователя
             await userStore.checkAuth();
         });
 

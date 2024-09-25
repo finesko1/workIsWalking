@@ -11,7 +11,7 @@ import NewPassword from "../components/auth/NewPassword.vue";
 import Profile from "../components/profile/Profile.vue";
 
 import {useUserStore} from "@/stores/user.js";
-
+import { useRouterStore } from "@/stores/routerStore.js";
 
 const routes = [
     {
@@ -80,6 +80,12 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+});
+
+router.beforeEach((to, from, next) => {
+    const routerStore = useRouterStore();
+    routerStore.setLastVisitedRoute(to.path); // Сохраняем каждый раз, когда пользователь переходит на новый маршрут
+    next();
 });
 
 export default router;

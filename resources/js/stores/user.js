@@ -20,7 +20,7 @@ export const useUserStore = defineStore('user', () => {
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
             console.error('Ошибка при входе: ', e);
-            showNotification('Вход не выполнен')
+            showNotification('Вход не выполнен', 0)
             throw(e);
         }
     };
@@ -36,7 +36,7 @@ export const useUserStore = defineStore('user', () => {
         } catch (e) {
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
-            showNotification('Ошибка регистрации!');
+            showNotification('Ошибка регистрации!', 0);
             throw(e);
         }
     };
@@ -53,7 +53,7 @@ export const useUserStore = defineStore('user', () => {
             localStorage.setItem('isAuthenticated', 'true');
             isAuthenticated.value = true;
             console.error('Ошибка при выходе: ', e);
-            showNotification('Выход не выполнен')
+            showNotification('Выход не выполнен', 0)
             throw(e);
         }
     };
