@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col min-h-screen bg-neutral-300">
-    <header class="rounded-t-lg top-0 left-0 w-full bg-cyan-800 p-4 flex justify-between items-center text-lg">
+    <header class="rounded-t-lg top-0 left-0 w-full p-2 bg-cyan-800 flex justify-between items-center text-lg border-b-2 border-cyan-950">
         <router-link to="/">
             <img src="/public/icons/wolf.png" alt="Main icon" class="w-14 h-14" />
         </router-link>
@@ -9,8 +9,7 @@
                 <li v-if="isAuthenticated" class="group relative">
                     <router-link to="/profile" class="flex items-center group transition-all delay-100 duration-300 ease-in">
                         <div class="flex items-center">
-                            <!-- Текст "Профиль" -->
-                            <div class="profile-text opacity-0 transform transition-transform ease-in-out translate-x-16 group-hover:translate-x-[-16] group-hover:opacity-100 duration-300">
+                            <div class="opacity-0 transform transition-transform ease-in-out translate-x-16 group-hover:translate-x-[-16] group-hover:opacity-100 duration-300">
                                 <span class="bg-cyan-800 text-white p-2 mr-0 border-r-0 rounded group-hover:shadow-inner group-hover:shadow-cyan-900 hover:border-cyan-800">Профиль</span>
                             </div>
                         </div>
@@ -26,8 +25,8 @@
                         </div>
                     </router-link>
                 </li>
-                <li class="group relative">
-                    <router-link to="/main"
+                <li class="group relative active">
+                    <router-link to="/"
                                  class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
                         <span class="transform group-hover:translate-x-[-5px] transition-transform duration-300 ease-in">
                             Главная
@@ -88,12 +87,11 @@
                     <p class="text-center text-md font-semibold">{{ msgNotification }}</p>
                 </div>
             </div>
-
         </nav>
     </header>
 
 
-        <div class="flex body p-4 flex-1">
+        <div class="flex body p-1 flex-1">
             <div v-if="$route.name === 'Main' || $route.name === 'Root'"
                     class="flex items-center justify-center w-full">
                 <router-view></router-view>
@@ -104,14 +102,13 @@
                 <router-view></router-view>
             </div>
 
-            <!-- General rendering for other components -->
             <div v-else class="flex flex-col w-full">
                 <router-view class="flex-1"></router-view>
             </div>
         </div>
 
 
-    <footer class="rounded-b-lg footer border-t-4 border-cyan-950 text-lg">
+    <footer class="rounded-b-lg footer border-t-2 border-cyan-950 text-lg">
         <router-link to="/">
             <div class="text-center p-4 bg-cyan-800 text-white">Система управления обучением &copy2024</div>
         </router-link>
@@ -141,21 +138,45 @@ export default {
         onMounted(async () => {
             // Сначала загружаем сохраненный маршрут
             const lastVisitedRoute = routerStore.lastVisitedRoute || '/';
+            if (lastVisitedRoute === '/') {
+                router.push('/');
+            }
+            console.log(window.location.name);
+            //routerStore.setLastVisitedRoute(window.location.name);
+            // Проверяем аутентификацию пользователя
+            await userStore.checkAuth();
 
             // Проверка, существует ли маршрут
             const routeExists = router.getRoutes().some(route => route.path === lastVisitedRoute);
 
             if (routeExists) {
-                // Переход на последний сохраненный маршрут
-                router.push(lastVisitedRoute);
-            }
+                const pathSegments = lastVisitedRoute.split('/').filter(segment => segment); // Фильтруем пустые сегменты
+                const mainRoute = `/${pathSegments[0]}`;
+                let currentPath = mainRoute;
 
-            // Проверяем аутентификацию пользователя
-            await userStore.checkAuth();
+                // Переход на основной маршрут
+                await router.push(mainRoute);
+
+                // Переход на вложенные маршруты
+                for (let i = 1; i < pathSegments.length; i++) {
+                    const nestedRoute = pathSegments[i];
+                    currentPath = `${currentPath}/${nestedRoute}`;
+                    const nestedRouteExists = router.getRoutes().some(route => route.path === currentPath);
+
+                    if (nestedRouteExists) {
+                        await router.push(currentPath);
+                    } else {
+                        break; // Прерываем цикл, если маршрут не существует
+                    }
+                }
+            } else {
+                await router.push('/');
+            }
         });
 
         const handleLogout = async () => {
             try {
+                routerStore.lastVisitedRoute = null;
                 await userStore.logout();
             } catch (e) {
                 console.error('Ошибка отправки данных: ', e);

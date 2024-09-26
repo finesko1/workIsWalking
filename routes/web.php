@@ -8,11 +8,9 @@ use App\Http\Controllers\Auth\LogoutController;
 // middlewares
 use Illuminate\Auth\Middleware\Authenticate;
 
-//Route::get('/{any}', function () {
-//    return view('welcome'); // Возвращает главный шаблон SPA
-//})->where('any', '.*');
-//
-//// Обработчик посторонних URL
+Route::get('/{any}', function () {
+    return view('welcome'); // Возвращает главный шаблон SPA
+})->where('any', '.*');
 //
 //Route::get('{path}', function() {
 //    return view('spa'); // Single page application
@@ -46,9 +44,7 @@ Route::post('/logout', [LogoutController::class, 'destroy'])->name('logout');
 Route::get('/contacts', function() {
     return redirect('/');
 });
-Route::get('/main', function() {
-    return redirect('/');
-});
+
 // Профиль пользователя
 Route::get('/profile', function() {
     return redirect('/');

@@ -6,8 +6,12 @@ export const useRouterStore = defineStore('router', {
     }),
     actions: {
         setLastVisitedRoute(route) {
-            this.lastVisitedRoute = route;
-            localStorage.setItem('lastVisitedRoute', route);
+            if (!route) { // Проверка на пустую строку или null
+                this.lastVisitedRoute = '/';
+            } else {
+                this.lastVisitedRoute = route;
+            }
+            localStorage.setItem('lastVisitedRoute', this.lastVisitedRoute);
         },
     },
 });

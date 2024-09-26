@@ -7,10 +7,10 @@
                     Федоров Михаил <span class="italic">- Разработчик</span>
                 </li>
                 <li class="indent-8 border-b border-dashed border-blue-800">
-                    Wolf is walking <span class="italic">- Горячая линия</span>
+                    Work is walking <span class="italic">- Горячая линия</span>
                 </li>
                 <li class="indent-8 border-b border-dashed border-blue-800">
-                    Wolf is walking <span class="italic">- Предложения</span>
+                    Work is walking <span class="italic">- Предложения</span>
                 </li>
             </ul>
         </div>
@@ -24,7 +24,7 @@
                     +7-900-900-90-90 <span class="italic">- номер телефона</span>
                 </li>
                 <li class="indent-8 border-b border-dashed border-blue-800">
-                    wolfIsWalking@mail.ru <span class="italic">- почта</span>
+                    workIsWalking@mail.ru <span class="italic">- почта</span>
                 </li>
             </ul>
         </div>

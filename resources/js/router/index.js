@@ -9,6 +9,10 @@ import ForgotPassword from '../components/auth/ForgotPassword.vue';
 import EmailVerify from "../components/auth/EmailVerify.vue";
 import NewPassword from "../components/auth/NewPassword.vue";
 import Profile from "../components/profile/Profile.vue";
+import ProfileSettings from "../components/settings/ProfileSettings.vue";
+import PersonalDataSettings from "../components/settings/PersonalDataSettings.vue";
+import ContactsSettings from "../components/settings/ContactsSettings.vue";
+
 
 import {useUserStore} from "@/stores/user.js";
 import { useRouterStore } from "@/stores/routerStore.js";
@@ -16,11 +20,6 @@ import { useRouterStore } from "@/stores/routerStore.js";
 const routes = [
     {
         path: '/',
-        name: 'Root',
-        component: Main,
-    },
-    {
-        path: '/main',
         name: 'Main',
         component: Main,
     },
@@ -73,8 +72,34 @@ const routes = [
     {
         path: '/profile',
         name: 'Profile',
-        component: Profile
-    }
+        component: Profile,
+        beforeEnter: (to, from, next) => {
+            const userStore = useUserStore();
+            if (userStore.isAuthenticated) {
+                next();
+            } else {
+                next('/');
+            }
+        },
+        redirect: '/profile/profileSettings',
+        children: [
+            {
+                path: '/profile/profileSettings',
+                name: 'ProfileSettings',
+                component: ProfileSettings
+            },
+            {
+                path: '/profile/personalDataSettings',
+                name: 'PersonalSettings',
+                component: PersonalDataSettings
+            },
+            {
+                path: '/profile/contactsSettings',
+                name: 'ContactsSettings',
+                component: ContactsSettings
+            }
+        ]
+    },
 ];
 
 const router = createRouter({
@@ -84,7 +109,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const routerStore = useRouterStore();
-    routerStore.setLastVisitedRoute(to.path); // Сохраняем каждый раз, когда пользователь переходит на новый маршрут
+    routerStore.setLastVisitedRoute(to.path);
     next();
 });
 

@@ -63,7 +63,6 @@ export const useUserStore = defineStore('user', () => {
             const response = await axios.get('/user'); // получение данных о пользователе
             user.value = response.data;
             isAuthenticated.value = localStorage.getItem('isAuthenticated') === 'true';
-            router.push('/');
         } catch (e) {
             user.value = null;
             localStorage.setItem('isAuthenticated', 'false');

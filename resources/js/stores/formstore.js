@@ -15,12 +15,10 @@ export const useFormStore = defineStore('formStore', {
         loadFormData(keys) {
             const loadedData = {};
             keys.forEach(key => {
-                keys.forEach(key => {
-                    const value = localStorage.getItem(key);
-                    if(value) {
-                        loadedData[key] = value;
-                    }
-                })
+                const value = localStorage.getItem(key);
+                if(value) {
+                    loadedData[key] = value;
+                }
             });
             this.formData = loadedData;
             return loadedData;
