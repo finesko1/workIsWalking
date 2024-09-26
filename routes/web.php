@@ -5,12 +5,11 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\CheckAuthController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Profile\UserProfileController;
 // middlewares
 use Illuminate\Auth\Middleware\Authenticate;
 
-Route::get('/{any}', function () {
-    return view('welcome'); // Возвращает главный шаблон SPA
-})->where('any', '.*');
+
 //
 //Route::get('{path}', function() {
 //    return view('spa'); // Single page application
@@ -48,7 +47,15 @@ Route::get('/contacts', function() {
     return redirect('/');
 });
 
+
 // Профиль пользователя
 Route::get('/profile', function() {
     return redirect('/');
 });
+// Настройки профиля
+Route::get('/profile/profileSettings/show', [UserProfileController::class, 'showProfileData'])->name('profile.show');
+
+
+Route::get('/{any}', function () {
+    return view('welcome'); // Возвращает главный шаблон SPA
+})->where('any', '.*');

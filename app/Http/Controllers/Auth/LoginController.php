@@ -32,6 +32,10 @@ class LoginController extends Controller
                 return response()->json([
                     'message' => 'User logged in successfully',
                 ], 200);
+            } else {
+                return response()->json([
+                    'message' => 'Invalid login credentials.',
+                ], 401);  // HTTP код 401 для неавторизованного запроса
             }
         }
         catch (ValidationException $e) {
