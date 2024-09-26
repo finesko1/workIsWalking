@@ -19,6 +19,9 @@ Route::get('/{any}', function () {
 Route::get('/', function() {
     return view('welcome');
 });
+Route::get('/main', function() {
+    return redirect('/');
+});
 
 
 // Работа с аутентификацией

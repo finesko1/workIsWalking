@@ -20,8 +20,13 @@ import { useRouterStore } from "@/stores/routerStore.js";
 const routes = [
     {
         path: '/',
-        name: 'Main',
+        name: 'Root',
         component: Main,
+    },
+    {
+        path: '/main',
+        name: 'Main',
+        component: Main
     },
     {
         path: '/login',
@@ -109,7 +114,11 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const routerStore = useRouterStore();
-    routerStore.setLastVisitedRoute(to.path);
+    if (to.path === '/') {
+        routerStore.setLastVisitedRoute('/main');
+    } else {
+        routerStore.setLastVisitedRoute(to.path);
+    }
     next();
 });
 

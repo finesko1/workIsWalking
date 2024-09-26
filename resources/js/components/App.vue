@@ -137,12 +137,7 @@ export default {
         const routerStore = useRouterStore();
         onMounted(async () => {
             // Сначала загружаем сохраненный маршрут
-            const lastVisitedRoute = routerStore.lastVisitedRoute || '/';
-            if (lastVisitedRoute === '/') {
-                router.push('/');
-            }
-            console.log(window.location.name);
-            //routerStore.setLastVisitedRoute(window.location.name);
+            const lastVisitedRoute = routerStore.lastVisitedRoute;
             // Проверяем аутентификацию пользователя
             await userStore.checkAuth();
 
@@ -170,7 +165,7 @@ export default {
                     }
                 }
             } else {
-                await router.push('/');
+                await router.push('/main');
             }
         });
 

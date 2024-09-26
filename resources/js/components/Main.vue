@@ -1,5 +1,5 @@
 <template>
-    <div class="p-4 border border-2 border-blue-800 rounded-xl ring-4 ring-blue-300">
+    <div class="p-4 border-2 border-blue-800 rounded-xl ring-4 ring-blue-300">
         <p class="mb-2">
             <span class="border-b-2 border-red-400 font-semibold">Работа</span> не волк
         </p>
@@ -15,7 +15,3 @@
         name: 'Main',
     };
 </script>
-
-<style scoped>
-/* При необходимости */
-</style>
