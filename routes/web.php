@@ -54,6 +54,7 @@ Route::get('/profile', function() {
 });
 // Настройки профиля
 Route::get('/profile/profileSettings/show', [UserProfileController::class, 'showProfileData'])->name('profile.show');
+Route::post('/profile/profileSettings/update', [UserProfileController::class, 'updateProfileData'])->name('profile.update');
 
 
 Route::get('/{any}', function () {

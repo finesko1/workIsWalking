@@ -54,6 +54,7 @@
             </button>
         </div>
     </form>
+
     <div v-else class="flex ml-4 space-y-4 p-14 justify-center items-center w-full h-full">
         <button type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-400 transition ease-in-out duration-150 cursor-not-allowed" disabled="">
             <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -66,6 +67,9 @@
 </template>
 
 <script>
+import router from '@/router'
+import {showNotification} from "@/notifications.js";
+
 export default {
     name: 'ProfileSettings',
     data() {
@@ -117,11 +121,14 @@ export default {
         async saveChanges() {
             try {
                 const response = await axios.post('/profile/profileSettings/update', this.profileData);
-                console.log('Данные успешно обновлены:', response.data);
-                alert('Данные успешно обновлены');
+                showNotification(response.data.message, 1, 3000);
             } catch (e) {
-                console.error('Ошибка при сохранении данных', e);
-                alert('Ошибка при сохранении данных');
+                // Проверяем, есть ли ответ от сервера
+                if (e.response) {
+                    showNotification(e.response.data.message, 0, 3000);
+                } else {
+                    showNotification(e.message, 0, 3000);
+                }
             }
         }
     }

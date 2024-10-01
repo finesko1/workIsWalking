@@ -4,7 +4,7 @@
         <div class="bg-white shadow-md p-6 rounded-lg">
             <!-- Вверх: Заголовок меню -->
             <header class="text-center mb-6">
-                <h2 class="text-lg font-semibold">Настройка профиля</h2>
+                <h2 class="text-lg font-semibold">{{ headForm }}</h2>
             </header>
 
             <!-- Центр: Меню и форма -->
@@ -45,15 +45,37 @@
 </template>
 
 <script>
-    export default {
-        name: 'Profile',
-        data() {
-            return {
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
+export default {
+    name: 'Profile',
+    setup() {
+        const headForm = ref('');
+        const route = useRoute(); // Получаем текущий маршрут
+
+        const updateHeadForm = () => {
+            if (route.path === '/profile/profileSettings') {
+                headForm.value = 'Настройка профиля';
+            } else if (route.path === '/profile/personalDataSettings') {
+                headForm.value = 'Личные данные';
+            } else if (route.path === '/profile/contactsSettings') {
+                headForm.value = 'Контакты';
+            } else {
+                headForm.value = 'Настройка';
             }
-        },
-        methods: {
+        };
 
-        }
-    }
+        updateHeadForm();
+
+        // Следим за изменением маршрута
+        watch(() => route.path, () => {
+            updateHeadForm();
+        });
+
+        return {
+            headForm
+        };
+    },
+}
 </script>

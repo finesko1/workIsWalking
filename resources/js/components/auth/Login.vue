@@ -45,9 +45,9 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue';
-import { useUserStore } from "@/stores/user.js";
-import { useFormStore } from '@/stores/formStore.js';
+import { ref, onMounted, watch } from 'vue'
+import { useUserStore } from "@/stores/user.js"
+import { useFormStore } from '@/stores/formStore.js'
 
 export default {
     name: 'Login',
