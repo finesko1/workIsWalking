@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User\User;
 use Illuminate\Http\Request;
-
-use App\Models\User;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -17,9 +15,9 @@ class RegisterController extends Controller
     {
         try {
             $request->validate([
-                'login' => 'required|string|max:255',
+                'login' => 'required|string|max:255|unique:users',
                 'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:3|confirmed',
+                'password' => 'required|string|min:8|confirmed',
                 'password_confirmation' => 'required|same:password',
             ]);
 
@@ -31,18 +29,18 @@ class RegisterController extends Controller
 
             // Вход пользователя
             Auth::loginUsingId($user->id);
-            return response()->json(['message' => 'User registered successfully.']);
+            return response()->json(['message' => 'Пользователь успешно авторизован']);
         }
         catch (ValidationException $e) {
             return response()->json([
-                'message' => 'Validation failed.',
+                'message' => 'Ошибка ввода данных',
                 'errors' => $e->errors()
             ], 422);
         }
             // Общая ошибка
         catch (\Exception $e) {
             return response()->json([
-                'message' => 'An error occurred during registration. Please try again later.'
+                'message' => 'Ошибка во время регистрации. Попробуйте еще раз'
             ], 500);
         }
     }

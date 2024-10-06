@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\CheckAuthController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+
 use App\Http\Controllers\Profile\UserProfileController;
 // middlewares
 use Illuminate\Auth\Middleware\Authenticate;
@@ -55,6 +57,18 @@ Route::get('/profile', function() {
 // Настройки профиля
 Route::get('/profile/profileSettings/show', [UserProfileController::class, 'showProfileData'])->name('profile.show');
 Route::post('/profile/profileSettings/update', [UserProfileController::class, 'updateProfileData'])->name('profile.update');
+// личная информация
+Route::get('/profile/personalData/show', [UserProfileController::class, 'showPersonalData'])->name('personalData.show');
+Route::post('/profile/personalData/update', [UserProfileController::class, 'updatePersonalData'])->name('personalData.update');
+
+
+// Работа с восстановлением пароля + подтверждением почты
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'index'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'update'])->name('password.update');
+
+
+
 
 
 Route::get('/{any}', function () {

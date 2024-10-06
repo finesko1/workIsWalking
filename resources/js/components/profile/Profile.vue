@@ -38,7 +38,9 @@
 
             <!-- Низ: Дополнительная информация -->
             <footer class="text-center mt-6 text-sm text-gray-500">
-                Дополнительная информация
+               <div>
+
+               </div>
             </footer>
         </div>
     </div>

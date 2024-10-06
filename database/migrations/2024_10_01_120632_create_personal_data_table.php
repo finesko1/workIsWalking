@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('profiles', function (Blueprint $table) {
+        Schema::create('personal_data', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('first_name');
             $table->string('second_name');
-            $table->string('phone_number', 15)->unique();
-            $table->string('city');
+            $table->string('phone_number', 15)->unique()->nullable();
+            $table->string('city')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

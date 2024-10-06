@@ -13,17 +13,15 @@
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Пароль</label>
                     <input id="password" type="password" v-model="form.password" placeholder="Введите пароль"
-                           :class="{'border-red-500': errors.login}"
+                           :class="{'border-red-500': errors.password}"
                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md" />
                     <span v-if="errors.password" class="text-red-500 text-sm">- {{ errors.password.join(' ') }}</span>
                 </div>
 
-                <div>
-                    <button type="submit"
-                            class="w-full px-4 py-2 bg-cyan-600 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition hover:scale-95  duration-200 ease-in">
-                        Войти
-                    </button>
-                </div>
+                <button type="submit"
+                        class="w-full px-4 py-2 bg-cyan-600 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition hover:scale-95  duration-200 ease-in">
+                    Войти
+                </button>
 
                 <router-link to="/signin" class="flex justify-center font-medium text-sm">
                     Нет аккаунта?
@@ -33,7 +31,7 @@
                     </button>
                 </router-link>
 
-                <router-link to="/forgotPassword" class="flex justify-center font-medium text-sm">
+                <router-link to="/forgot-password" class="flex justify-center font-medium text-sm">
                     Забыли пароль?
                     <button type="submit"
                             class="ml-2 underline underline-offset-4 italic hover:scale-95 transform ease-in duration-200 hover:decoration-emerald-800">
@@ -74,10 +72,10 @@ export default {
             try {
                 errors.value = {};
                 await userStore.login(form.value);
+                window.location.reload();
             } catch (e) {
                 if (e.response && e.response.status === 422) {
                     errors.value = e.response.data.errors;
-                    console.log(errors.value);
                 } else {
                     console.error('Ошибка отправки данных: ', e);
                 }

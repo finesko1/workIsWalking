@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\User;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Employment_record extends Model
+class EmploymentRecord extends Model
 {
     use HasFactory;
     protected $table = 'employment_records';
@@ -16,4 +16,9 @@ class Employment_record extends Model
 
     protected $guarded = [];
     protected $hidden = [];
+
+    // Работа с пользователем
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
 }

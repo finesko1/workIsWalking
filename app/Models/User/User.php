@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\User;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes;
-//Работа с почтой
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-//Работа с Auth::
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+//Работа с почтой
+//Работа с Auth::
 
 class User extends Authenticatable implements AuthenticatableContract, MustVerifyEmail
 {
@@ -33,5 +33,15 @@ class User extends Authenticatable implements AuthenticatableContract, MustVerif
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Для работы с таблицами личных данных и записями о работе
+    public function personalData()
+    {
+        return $this->hasOne(\App\Models\User\PersonalData::class, 'user_id');
+    }
+    public function employmentRecord() : HasOne
+    {
+        return $this->hasOne(EmploymentRecord::class);
     }
 }

@@ -5,9 +5,9 @@ import Main from '../components/Main.vue';
 import Contacts from '../components/Contacts.vue';
 import Login from '../components/auth/Login.vue';
 import Signin from '../components/auth/Signin.vue';
-import ForgotPassword from '../components/auth/ForgotPassword.vue';
 import EmailVerify from "../components/auth/EmailVerify.vue";
-import NewPassword from "../components/auth/NewPassword.vue";
+import ForgotPassword from '../components/auth/forgotPassword/ForgotPassword.vue';
+import ResetPassword from "../components/auth/forgotPassword/ResetPassword.vue";
 import Profile from "../components/profile/Profile.vue";
 import ProfileSettings from "../components/settings/ProfileSettings.vue";
 import PersonalDataSettings from "../components/settings/PersonalDataSettings.vue";
@@ -55,9 +55,18 @@ const routes = [
         }
     },
     {
-        path: '/forgotPassword',
+        path: '/forgot-password',
         name: 'ForgotPassword',
         component: ForgotPassword,
+    },
+    {
+        path: '/reset-password/:token',
+        name: 'ResetPassword',
+        component: ResetPassword,
+        props: (route) => ({
+            token: route.params.token,
+            email: route.query.email,
+        })
     },
     {
         path: '/contacts',
@@ -68,11 +77,6 @@ const routes = [
         path: '/emailVerify',
         name: 'EmailVerify',
         component: EmailVerify
-    },
-    {
-        path: '/newPassword',
-        name: 'NewPassword',
-        component: NewPassword
     },
     {
         path: '/profile',

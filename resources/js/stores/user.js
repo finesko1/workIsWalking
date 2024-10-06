@@ -14,13 +14,14 @@ export const useUserStore = defineStore('user', () => {
             user.value = response.data.user;
             localStorage.setItem('isAuthenticated', 'true');
             isAuthenticated.value = true;
-            showNotification('Вход успешно выполнен!');
+            showNotification(response.data.message);
             router.push('/');
         } catch (e) {
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
-            console.error('Ошибка при входе: ', e);
-            showNotification('Вход не выполнен', 0)
+            if(e.response) {
+                showNotification(e.response.data.error, 0)
+            }
             throw(e);
         }
     };
@@ -61,7 +62,7 @@ export const useUserStore = defineStore('user', () => {
     const checkAuth = async () => {
         try {
             const response = await axios.get('/user'); // получение данных о пользователе
-            user.value = response.data;
+            user.value = response.data.user;
             isAuthenticated.value = localStorage.getItem('isAuthenticated') === 'true';
         } catch (e) {
             user.value = null;
