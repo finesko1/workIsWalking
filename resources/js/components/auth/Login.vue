@@ -5,7 +5,7 @@
                 <div>
                     <label for="login" class="block text-sm font-medium text-gray-700">Логин</label>
                     <input id="login" type="text" v-model="form.login" placeholder="Введите логин или почту"
-                           :class="{'border-red-500': errors.login}"
+                           :class="{'border-red-500 ring-2 ring-red-300 bg-red-100 focus:bg-white': errors.login}"
                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md" />
                     <span v-if="errors.login" class="text-red-500 text-sm">- {{ errors.login.join(' ') }}</span>
                 </div>
@@ -13,9 +13,14 @@
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Пароль</label>
                     <input id="password" type="password" v-model="form.password" placeholder="Введите пароль"
-                           :class="{'border-red-500': errors.password}"
+                           :class="{'border-red-500 ring-2 ring-red-300 bg-red-100 focus:bg-white': errors.password}"
                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md" />
                     <span v-if="errors.password" class="text-red-500 text-sm">- {{ errors.password.join(' ') }}</span>
+                </div>
+
+                <div class="flex items-center">
+                    <label class="text-sm font-medium text-gray-700">Запомнить пароль?</label>
+                    <input type="checkbox" v-model="savePassword" @change="handleCheckboxSavePassword" class="ml-2"/>
                 </div>
 
                 <button type="submit"
@@ -57,24 +62,34 @@ export default {
             password: ''
         });
         const errors = ref({});
+        const savePassword = ref(false);
+
 
         onMounted(() => {
-            const savedData = formStore.loadFormData(['login', 'password']);
+            const savedData = formStore.loadFormData(['login', "password"]);
             form.value = { ...form.value, ...savedData };
         });
 
-        // Сохраняем данные формы при их изменении
+
         watch(form, (newValue) => {
-            formStore.saveFormData(newValue);
+            if (savePassword.value) {
+                formStore.saveFormData(newValue);
+            } else {
+                formStore.saveFormData({login: newValue.login});
+            }
         }, { deep: true });
+
 
         const handleLogin = async () => {
             try {
                 errors.value = {};
+                if (!savePassword.value) {
+                    formStore.clearFormDataForKey('password');
+                }
                 await userStore.login(form.value);
                 window.location.reload();
             } catch (e) {
-                if (e.response && e.response.status === 422) {
+                if (e.response && (e.response.status === 401 || e.response.status === 422)) {
                     errors.value = e.response.data.errors;
                 } else {
                     console.error('Ошибка отправки данных: ', e);
@@ -82,16 +97,32 @@ export default {
             }
         };
 
+
+        const handleSavePassword = () => {
+            savePassword.value = !savePassword.value;
+        };
+
+
+        watch(() => form.value.login, (newValue) => {
+            if (errors.value.login) {
+                errors.value.login = '';
+            }
+        });
+
+        watch(() => form.value.password, (newValue) => {
+            if (errors.value.password) {
+                errors.value.password = '';
+            }
+        });
+
+
         return {
             form,
             errors,
             handleLogin,
+            savePassword,
+            handleSavePassword
         };
     },
-    beforeRouteLeave(to, from, next) {
-        const formStore = useFormStore();
-        formStore.clearFormData(['login', 'password']); // Очищаем при смене URL
-        next();
-    }
 };
 </script>
