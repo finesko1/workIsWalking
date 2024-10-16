@@ -24,6 +24,10 @@ export const useFormStore = defineStore('formStore', {
             return loadedData;
         },
 
+        clearFormDataForKey(key) {
+            localStorage.removeItem(key);
+        },
+
         clearFormData(keys) {
             keys.forEach(key => {
                 localStorage.removeItem(key); // Удаляем данные из localStorage

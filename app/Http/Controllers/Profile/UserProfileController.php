@@ -141,7 +141,19 @@ class UserProfileController extends Controller
             return response()->json(['message' => 'User not authenticated'], 401);
         }
 
+        // Получаем личные данные пользователя
         $personalData = $user->personalData;
+
+        // Если личные данные отсутствуют, создаем их с пустыми значениями
+        if (!$personalData) {
+            $personalData = $user->personalData()->create([
+                'first_name' => '',
+                'second_name' => '',
+                'phone_number' => null,
+                'city' => null,
+            ]);
+        }
+
         return response()->json(['personalData' => $personalData], 200);
     }
 
@@ -149,8 +161,8 @@ class UserProfileController extends Controller
         $user = Auth::user();
         $personalData = PersonalData::findOrFail($user->id);
         $validatedData = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'second_name' => 'required|string|max:255',
+            'first_name' => 'required|string|regex:/^[А-ЯЁ][а-яё]+$/u|max:50',
+            'second_name' => 'required|string|regex:/^[А-ЯЁ][а-яё]+$/u|max:50',
             'phone_number' => 'nullable|string|max:15|unique:personal_data,phone_number,' . $personalData->id,
             'city' => 'nullable|string|max:255',
         ]);

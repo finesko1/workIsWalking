@@ -13,8 +13,11 @@
                             v-model="form.email"
                             placeholder="Введите вашу почту"
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
-                            required
+                            :class = "{'border-red-500 ring-2 ring-red-300 bg-red-100 focus:bg-white' : errors.email}"
                         />
+                        <span v-if="errors.email" class="text-red-500 text-sm">
+                            - {{ errors.email.join(' ') }}
+                        </span>
                     </div>
 
                     <div class="mb-4">
@@ -25,8 +28,11 @@
                             v-model="form.password"
                             placeholder="Введите пароль"
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
-                            required
+                            :class="{'border-red-500 ring-2 ring-red-300 bg-red-100 focus:bg-white': errors.password}"
                         />
+                        <span v-if="errors.password" class="text-red-500 text-sm">
+                            - {{ errors.password.join(' ') }}
+                        </span>
                     </div>
 
                     <div class="mb-4">
@@ -37,8 +43,11 @@
                             v-model="form.password_confirmation"
                             placeholder="Подтвердите пароль"
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
-                            required
+                            :class="{'border-red-500 ring-2 ring-red-300 bg-red-100 focus:bg-white': errors.password_confirmation}"
                         />
+                        <span v-if="errors.password_confirmation" class="text-red-500 text-sm">
+                            - {{ errors.password_confirmation.join(' ') }}
+                        </span>
                     </div>
 
                     <button
@@ -54,7 +63,7 @@
 </template>
 
 <script>
-import {ref} from 'vue';
+import {ref, watch} from 'vue';
 import {useRouter} from "vue-router";
 import { showNotification } from "@/notifications.js";
 
@@ -74,25 +83,47 @@ export default {
         const errors = ref({});
         const handleResetPassword = async () => {
             try {
-                errors.value = null;
+                errors.value = {};
                 form.value.token = props.token;
 
-                await axios.post('/reset-password', form.value);
+                const response = await axios.post('/reset-password', form.value);
 
-                showNotification('Пароль успешно изменён!');
+                showNotification(response.data.message, 1, 3000);
                 await router.push('/');
             } catch (e) {
                 if (e.response) {
                     errors.value = e.response.data.errors;
+                    showNotification(e.response.data.error, 0, 3000);
+                } else {
+                    showNotification('Ошибка изменения пароля! Попробуйте еще раз', 0, 1000);
                 }
-                showNotification('Ошибка изменения пароля!', 0, 1000);
-                console.error(e);
             }
         };
 
+        // ref val, callback, options (deep)
+        watch(() => form.value.email, () => {
+            if (errors.value.email) {
+                errors.value.email = ''
+            }
+        });
+
+        watch(() => form.value.password, () => {
+            if (errors.value.password) {
+                errors.value.password = ''
+            }
+        });
+
+        watch(() => form.value.password_confirmation, () => {
+            if (errors.value.password_confirmation) {
+                errors.value.password_confirmation = ''
+            }
+        });
+
+
         return {
             form,
-            handleResetPassword
+            handleResetPassword,
+            errors
         };
     }
 };

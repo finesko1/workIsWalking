@@ -37,11 +37,11 @@ class LoginController extends Controller
                     $imageName = 'userImage'; // Имя файла без расширения
 
                     // Проверяем существование файлов с различными расширениями
-                    $extensions = ['jpg', 'jpeg', 'png', 'gif']; // Массив возможных расширений
-                    $imageUrl = null; // Изначально устанавливаем значение null
+                    $extensions = ['jpg', 'jpeg', 'png', 'gif'];
+                    $imageUrl = null;
 
                     foreach ($extensions as $extension) {
-                        $imagePath = "{$userFolder}/{$imageName}.{$extension}"; // Формируем полный путь к изображению
+                        $imagePath = "{$userFolder}/{$imageName}.{$extension}";
 
                         // Проверяем, существует ли файл
                         if (Storage::disk('public')->exists($imagePath)) {
@@ -65,7 +65,7 @@ class LoginController extends Controller
                         'errors' => [
                             'password' => ['Неправильный пароль']
                         ]
-                    ], 422);  // 422 - validation
+                    ], 401);  // 401 - unauthorized
                 }
             } else {
                 return response()->json([
@@ -73,7 +73,7 @@ class LoginController extends Controller
                     'errors' => [
                         'login' => ['Пользователь не найден']
                     ]
-                ], 422);
+                ], 401);
             }
         }
         catch (ValidationException $e) {
@@ -85,7 +85,7 @@ class LoginController extends Controller
         catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
-            ], 401); // HTTP код 401 для неавторизованного запроса
+            ], 401);
         }
     }
 }

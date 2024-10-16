@@ -72,5 +72,5 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'update'])->nam
 
 
 Route::get('/{any}', function () {
-    return view('welcome'); // Возвращает главный шаблон SPA
+    return view('welcome');
 })->where('any', '.*');

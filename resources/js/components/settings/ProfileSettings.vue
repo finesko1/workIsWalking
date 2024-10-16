@@ -1,8 +1,9 @@
 <template>
     <form class="space-y-4 ml-8" v-if="isDataLoaded">
-        <div v-for="(field, index) in fields" :key="index" class="flex items-center relative group">
-            <label :for="field.name" class="w-1/3 text-right pr-4">{{ field.label }}</label>
-            <div v-if="field.name === 'image_url'" class="w-2/3 flex items-center">
+        <!-- Поле для фото профиля -->
+        <div class="flex items-center relative group w-full">
+            <label for="image_url" class="text-right pr-4">Фото профиля</label>
+            <div class="w-full flex items-center">
                 <div @click="selectFile" class="cursor-pointer rounded-full border-2 ring-2 ring-cyan-700 border-cyan-900">
                     <img v-if="profileData.image_url" :src="profileData.image_url" alt="User Image" class="rounded-full w-20 h-20 object-cover" />
                     <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -11,81 +12,98 @@
                     </svg>
                 </div>
                 <input
-                    :type="field.type"
-                    :id="field.name"
+                    type="file"
+                    id="image_url"
                     @change="onFileChange"
                     class="hidden"
                     ref="fileInput"
                 />
             </div>
-            <input
-                v-if="field.name !== 'password' && field.name !== 'image_url' "
-                :type="field.type"
-                :name="field.name"
-                :id="field.name"
-                v-model="profileData[field.name]"
-                :disabled="!field.editable"
-                :ref="field.name"
-                class="w-2/3 p-2 border border-gray-300 rounded transition"
-            />
-            <button
-                v-if="field.name === 'password' "
-                type="button"
-                class="underline text-blue-600 font-normal italic p-2 rounded transition"
-                @click="isPasswordChanging = !isPasswordChanging"
-            >
-                Сменить пароль
-            </button>
+        </div>
+        <span v-if="errors.image_url" class="text-red-600 text-sm">{{ errors.image_url[0] }}</span>
 
-            <button
-                v-if="field.name !== 'password' && field.name !== 'image_url' "
-                type="button"
-                class="absolute right-2 bg-cyan-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition"
-                @click="toggleEdit(field.name)"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <title>Изменить</title>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.121 2.121 0 113 3L9 20.5H5.5v-3.5l11.732-11.732z" />
-                </svg>
+        <!-- Поле для логина -->
+        <div class="flex items-center relative group w-full">
+            <label for="login" class="text-right pr-4">Логин</label>
+            <div class="flex flex-col w-full">
+                <input
+                    type="text"
+                    id="login"
+                    ref="login"
+                    v-model="profileData.login"
+                    :disabled="!isEditable.login"
+                    class="p-2 mt-1 block px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
+                />
+                <button
+                    type="button"
+                    class="absolute right-2 bottom-1 bg-cyan-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    @click="toggleEdit('login')"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <title>Изменить</title>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.121 2.121 0 113 3L9 20.5H5.5v-3.5l11.732-11.732z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <span v-if="errors.login" class="ml-16 text-red-600 text-sm">{{ errors.login[0] }}</span>
+
+
+        <!-- Поле для почты -->
+        <div class="flex items-center relative group w-full">
+            <label for="email" class="text-right pr-4">Почта</label>
+            <div class="flex flex-col w-full">
+                <input
+                    type="email"
+                    id="email"
+                    ref="email"
+                    v-model="profileData.email"
+                    :disabled="!isEditable.email"
+                    class="p-2 mt-1 block px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
+                />
+                <button
+                    type="button"
+                    class="absolute right-2 bottom-1 bg-cyan-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    @click="toggleEdit('email')"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <title>Изменить</title>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.121 2.121 0 113 3L9 20.5H5.5v-3.5l11.732-11.732z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <span v-if="errors.email" class="ml-16 text-red-600 text-sm">{{ errors.email[0] }}</span>
+
+        <!-- Поле для изменения пароля -->
+        <div class='flex'>
+            <button type="button" class="underline text-blue-600 font-normal italic rounded transition" @click="isPasswordChanging = !isPasswordChanging">
+                Сменить пароль
             </button>
         </div>
 
         <div v-if="isPasswordChanging" class="flex flex-col gap-2">
-            <div class="flex">
-                <div class="w-1/3"></div>
-                <div class="w-2/3 relative">
-                    <input
-                        type="password"
-                        id="password"
-                        v-model="profileData.password"
-                        class="w-full p-2 border border-gray-300 rounded transition"
-                        placeholder="Введите пароль"
-                    />
-                    <span v-if="errors.password" class="text-red-500 text-sm block mt-1 w-52 p-3">- {{ errors.password.join(' ') }}</span>
-                </div>
-            </div>
-
-            <div class="flex">
-                <div class="w-1/3"></div>
-                <div class="w-2/3 relative">
-                    <input
-                        type="password"
-                        id="password_confirmation"
-                        v-model="profileData.password_confirmation"
-                        class="w-full p-2 border border-gray-300 rounded transition"
-                        placeholder="Подтвердите пароль"
-                    />
-                    <span v-if="errors.password_confirmation" class="text-red-500 text-sm block mt-1 w-52 p-3">- {{ errors.password_confirmation.join(' ') }}</span>
-                </div>
-            </div>
+            <input
+                type="password"
+                id="password"
+                v-model="profileData.password"
+                class="p-2 mt-1 block px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
+                placeholder="Введите пароль"
+            />
+            <span v-if="errors.password" class="text-red-600 text-sm">{{ errors.password[0] }}</span>
+            <input
+                type="password"
+                id="password_confirmation"
+                v-model="profileData.password_confirmation"
+                class="p-2 mt-1 block px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
+                placeholder="Подтвердите пароль"
+            />
+            <span v-if="errors.password_confirmation" class="text-red-600 text-sm">{{ errors.password_confirmation[0] }}</span>
         </div>
 
+        <!-- Кнопка сохранить -->
         <div class="text-center">
-            <button
-                type="button"
-                class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition"
-                @click="saveChanges"
-            >
+            <button type="button" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition" @click="saveChanges">
                 Сохранить
             </button>
         </div>
@@ -120,12 +138,7 @@ export default {
             },
             isDataLoaded: false,
             isPasswordChanging: false,
-            fields: [
-                { name: 'image_url', label: 'Фото профиля', type: 'file', editable: false },
-                { name: 'login', label: 'Логин', type: 'text', editable: false },
-                { name: 'email', label: 'Почта', type: 'email', editable: false },
-                { name: 'password', label: 'Пароль', type: 'password', editable: false },
-            ],
+            isEditable: { login: false, email: false },
             errors: {}
         }
     },
@@ -144,13 +157,12 @@ export default {
             }
         },
         toggleEdit(fieldName) {
-            const field = this.fields.find(f => f.name === fieldName);
-            if (field) {
-                field.editable = !field.editable;
+            if (this.isEditable.hasOwnProperty(fieldName)) {
+                this.isEditable[fieldName] = !this.isEditable[fieldName];
 
-                if (field.editable) {
+                if (this.isEditable[fieldName]) {
                     this.$nextTick(() => {
-                        const inputElement = this.$refs[field.name][0];
+                        const inputElement = this.$refs[fieldName];
                         if (inputElement) {
                             this.setCursorToEnd(inputElement);
                         }
@@ -161,7 +173,7 @@ export default {
         setCursorToEnd(inputElement) {
             if (inputElement) {
                 inputElement.focus();
-                // Устанавливаем курсор только для поддерживаемых типов
+                // Устанавливаем курсор в конец только для поддерживаемых полей
                 if (inputElement.type === 'text' || inputElement.type === 'textarea') {
                     const value = inputElement.value;
                     inputElement.setSelectionRange(value.length, value.length);
@@ -171,8 +183,8 @@ export default {
             }
         },
         selectFile() {
-            if (this.$refs.fileInput && this.$refs.fileInput.length > 0) {
-                this.$refs.fileInput[0].click(); // Используем первый выбраннай файл
+            if (this.$refs.fileInput) {
+                this.$refs.fileInput.click(); // Вызываем диалог выбора файла
             } else {
                 console.error('fileInput ref is not defined or does not exist');
             }

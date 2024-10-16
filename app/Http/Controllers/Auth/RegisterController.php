@@ -27,21 +27,20 @@ class RegisterController extends Controller
                 'password' => Hash::make($request->input('password'))
             ]);
 
-            // Вход пользователя
             Auth::loginUsingId($user->id);
-            return response()->json(['message' => 'Пользователь успешно авторизован']);
+            return response()->json(['message' => 'Регистрация прошла успешно!']);
         }
         catch (ValidationException $e) {
             return response()->json([
-                'message' => 'Ошибка ввода данных',
+                'error' => 'Ошибка ввода данных',
                 'errors' => $e->errors()
             ], 422);
         }
             // Общая ошибка
         catch (\Exception $e) {
             return response()->json([
-                'message' => 'Ошибка во время регистрации. Попробуйте еще раз'
-            ], 500);
+                'error' => 'Ошибка во время регистрации. Попробуйте еще раз'
+            ], 401);
         }
     }
 }

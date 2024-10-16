@@ -1,18 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { onMounted } from 'vue';
+
 import App from '../components/App.vue';
 import Main from '../components/Main.vue';
 import Contacts from '../components/Contacts.vue';
+
 import Login from '../components/auth/Login.vue';
 import Signin from '../components/auth/Signin.vue';
 import EmailVerify from "../components/auth/EmailVerify.vue";
 import ForgotPassword from '../components/auth/forgotPassword/ForgotPassword.vue';
 import ResetPassword from "../components/auth/forgotPassword/ResetPassword.vue";
+
 import Profile from "../components/profile/Profile.vue";
 import ProfileSettings from "../components/settings/ProfileSettings.vue";
 import PersonalDataSettings from "../components/settings/PersonalDataSettings.vue";
-import ContactsSettings from "../components/settings/ContactsSettings.vue";
 
+import Groups from "../components/messages/Groups.vue";
+
+import Friends from "../components/friends/Friends.vue";
 
 import {useUserStore} from "@/stores/user.js";
 import { useRouterStore } from "@/stores/routerStore.js";
@@ -102,13 +107,34 @@ const routes = [
                 name: 'PersonalSettings',
                 component: PersonalDataSettings
             },
-            {
-                path: '/profile/contactsSettings',
-                name: 'ContactsSettings',
-                component: ContactsSettings
-            }
         ]
     },
+    {
+        path: '/groups',
+        name: 'Groups',
+        component: Groups,
+        beforeEnter: (to, from, next) => {
+            const userStore = useUserStore();
+            if (userStore.isAuthenticated) {
+                next();
+            } else {
+                next('/');
+            }
+        },
+    },
+    {
+        path: '/friends',
+        name: 'Friends',
+        component: Friends,
+        beforeEnter: (to, from, next) => {
+            const userStore = useUserStore();
+            if (userStore.isAuthenticated) {
+                next();
+            } else {
+                next('/');
+            }
+        },
+    }
 ];
 
 const router = createRouter({

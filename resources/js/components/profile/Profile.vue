@@ -1,7 +1,7 @@
 <template>
     <div class="flex w-full h-screen justify-center items-center">
         <!-- Контейнер, который подстраивается под содержимое -->
-        <div class="bg-white shadow-md p-6 rounded-lg">
+        <div class="shadow-lg bg-gray-350 p-6 rounded-lg">
             <!-- Вверх: Заголовок меню -->
             <header class="text-center mb-6">
                 <h2 class="text-lg font-semibold">{{ headForm }}</h2>
@@ -22,21 +22,14 @@
                                 Личные данные
                             </router-link>
                         </li>
-                        <li>
-                            <router-link to="/profile/contactsSettings" class="block text-center bg-cyan-500 text-white p-2 rounded hover:bg-cyan-600 transition">
-                                Контакты
-                            </router-link>
-                        </li>
                     </ul>
                 </nav>
 
-                <!-- Форма ввода данных -->
                 <div>
                     <router-view></router-view>
                 </div>
             </div>
 
-            <!-- Низ: Дополнительная информация -->
             <footer class="text-center mt-6 text-sm text-gray-500">
                <div>
 
@@ -54,13 +47,13 @@ export default {
     name: 'Profile',
     setup() {
         const headForm = ref('');
-        const route = useRoute(); // Получаем текущий маршрут
+        const route = useRoute();
 
         const updateHeadForm = () => {
             if (route.path === '/profile/profileSettings') {
                 headForm.value = 'Настройка профиля';
             } else if (route.path === '/profile/personalDataSettings') {
-                headForm.value = 'Личные данные';
+                headForm.value = 'Настройка персональных данных';
             } else if (route.path === '/profile/contactsSettings') {
                 headForm.value = 'Контакты';
             } else {

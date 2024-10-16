@@ -14,13 +14,13 @@ export const useUserStore = defineStore('user', () => {
             user.value = response.data.user;
             localStorage.setItem('isAuthenticated', 'true');
             isAuthenticated.value = true;
-            showNotification(response.data.message);
+            showNotification(response.data.message, 1, 2000);
             router.push('/');
         } catch (e) {
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
             if(e.response) {
-                showNotification(e.response.data.error, 0)
+                showNotification(e.response.data.error, 0, 2000)
             }
             throw(e);
         }
@@ -32,12 +32,14 @@ export const useUserStore = defineStore('user', () => {
             user.value = response.data.user;
             localStorage.setItem('isAuthenticated', 'true');
             isAuthenticated.value = true;
-            showNotification('Регистрация прошла успешно!');
+            showNotification(response.data.message, 1, 2000);
             router.push('/');
         } catch (e) {
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
-            showNotification('Ошибка регистрации!', 0);
+            if (e.response) {
+                showNotification(e.response.data.error, 0, 2000);
+            }
             throw(e);
         }
     };
@@ -54,7 +56,7 @@ export const useUserStore = defineStore('user', () => {
             localStorage.setItem('isAuthenticated', 'true');
             isAuthenticated.value = true;
             console.error('Ошибка при выходе: ', e);
-            showNotification('Выход не выполнен', 0)
+            showNotification('Ошибка выхода', 0)
             throw(e);
         }
     };

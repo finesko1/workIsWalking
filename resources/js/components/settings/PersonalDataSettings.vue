@@ -1,29 +1,116 @@
 <template>
     <form class="space-y-4 ml-8" v-if="isDataLoaded">
-        <div v-for="(field, index) in fields" :key="index" class="flex items-center relative group">
-            <label :for="field.name" class="w-1/3 text-right pr-4">{{ field.label }}</label>
-            <input
-                :type="field.type"
-                :name="field.name"
-                :id="field.name"
-                v-model="personalData[field.name]"
-                :disabled="!field.editable"
-                :ref="field.name"
-                class="w-2/3 p-2 border border-gray-300 rounded transition"
-            />
-
-            <button
-                type="button"
-                class="absolute right-2 bg-cyan-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition"
-                @click="toggleEdit(field.name)"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <title>Изменить</title>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.121 2.121 0 113 3L9 20.5H5.5v-3.5l11.732-11.732z" />
-                </svg>
-            </button>
+        <!-- First Name -->
+        <div class="flex flex-col space-y-1">
+            <div class="flex items-center relative group">
+                <label for="first_name" class="w-1/3 text-left pr-20 whitespace-nowrap">Имя</label>
+                <input
+                    type="text"
+                    name="first_name"
+                    id="first_name"
+                    v-model="personalData.first_name"
+                    :disabled="!editableFields.first_name"
+                    ref="first_name"
+                    class="w-2/3 p-2 mt-1 block px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
+                />
+                <button
+                    type="button"
+                    class="absolute right-2 bottom-1 bg-cyan-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    @click="toggleEdit('first_name')"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <title>Изменить</title>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.121 2.121 0 113 3L9 20.5H5.5v-3.5l11.732-11.732z" />
+                    </svg>
+                </button>
+            </div>
+            <p v-if="errors.first_name" class="ml-32 text-red-500 text-sm">{{ errors.first_name[0] }}</p>
         </div>
 
+        <!-- Last Name -->
+        <div class="flex flex-col space-y-1">
+            <div class="flex items-center relative group">
+                <label for="second_name" class="w-1/3 text-left pr-20 whitespace-nowrap">Фамилия</label>
+                <input
+                    type="text"
+                    name="second_name"
+                    id="second_name"
+                    v-model="personalData.second_name"
+                    :disabled="!editableFields.second_name"
+                    ref="second_name"
+                    class="w-2/3 p-2 mt-1 block px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
+                />
+                <button
+                    type="button"
+                    class="absolute right-2 bottom-1 bg-cyan-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    @click="toggleEdit('second_name')"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <title>Изменить</title>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.121 2.121 0 113 3L9 20.5H5.5v-3.5l11.732-11.732z" />
+                    </svg>
+                </button>
+            </div>
+            <p v-if="errors.second_name" class="ml-32 text-red-500 text-sm">{{ errors.second_name[0] }}</p>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="flex flex-col space-y-1">
+            <div class="flex items-center relative group">
+                <label for="phone_number" class="w-1/3 text-left pr-20 whitespace-nowrap">Номер телефона</label>
+                <input
+                    type="text"
+                    name="phone_number"
+                    id="phone_number"
+                    @input="handlePhoneNumberInput"
+                    v-model="personalData.phone_number"
+                    :disabled="!editableFields.phone_number"
+                    ref="phone_number"
+                    class="w-2/3 p-2 mt-1 block px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
+                    placeholder="+7-918-262-90-98"
+                />
+                <button
+                    type="button"
+                    class="absolute right-2 bottom-1 bg-cyan-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    @click="toggleEdit('phone_number')"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <title>Изменить</title>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.121 2.121 0 113 3L9 20.5H5.5v-3.5l11.732-11.732z" />
+                    </svg>
+                </button>
+            </div>
+            <p v-if="errors.phone_number" class="ml-32 text-red-500 text-sm">{{ errors.phone_number[0] }}</p>
+        </div>
+
+        <!-- City -->
+        <div class="flex flex-col space-y-1">
+            <div class="flex items-center relative group">
+                <label for="city" class="w-1/3 text-left pr-20 whitespace-nowrap">Город</label>
+                <input
+                    type="text"
+                    name="city"
+                    id="city"
+                    v-model="personalData.city"
+                    :disabled="!editableFields.city"
+                    ref="city"
+                    class="w-2/3 p-2 mt-1 block px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
+                />
+                <button
+                    type="button"
+                    class="absolute right-2 bottom-1 bg-cyan-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    @click="toggleEdit('city')"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <title>Изменить</title>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.121 2.121 0 113 3L9 20.5H5.5v-3.5l11.732-11.732z" />
+                    </svg>
+                </button>
+            </div>
+            <p v-if="errors.city" class="ml-32 text-red-500 text-sm">{{ errors.city[0] }}</p>
+        </div>
+
+        <!-- Save Button -->
         <div class="text-center">
             <button
                 type="button"
@@ -48,7 +135,8 @@
 
 
 <script>
-import {showNotification} from "@/notifications.js";
+import { showNotification } from "@/notifications.js";
+
 export default {
     name: 'PersonalDataSettings',
     data() {
@@ -60,12 +148,12 @@ export default {
                 phone_number: '',
                 city: '',
             },
-            fields: [
-                { name: 'first_name', label: 'first_name', type: 'text', editable: false },
-                { name: 'second_name', label: 'second_name', type: 'text', editable: false },
-                { name: 'phone_number', label: 'phone_number', type: 'text', editable: false },
-                { name: 'city', label: 'city', type: 'text', editable: false },
-            ],
+            editableFields: {
+                first_name: false,
+                second_name: false,
+                phone_number: false,
+                city: false,
+            },
             errors: {}
         }
     },
@@ -78,25 +166,22 @@ export default {
                 const response = await axios.get('/profile/personalData/show');
                 await new Promise(resolve => setTimeout(resolve, 200));
                 this.personalData = response.data.personalData;
+                if(this.personalData.phone_number) {
+                    this.personalData.phone_number = this.formatPhoneNumberFromString(this.personalData.phone_number);
+                }
                 this.isDataLoaded = true;
             } catch (e) {
                 showNotification('Ошибка загрузки персональных данных', 0, 3000);
             }
         },
         toggleEdit(fieldName) {
-            const field = this.fields.find(f => f.name === fieldName);
-            if (field) {
-                field.editable = !field.editable;
-
-                if(field.editable) {
-                    this.$nextTick(() => {
-                        const inputElement = this.$refs[field.name][0];
-                        if (inputElement) {
-                            this.setCursorToEnd(inputElement);
-                        }
-                    });
+            this.editableFields[fieldName] = !this.editableFields[fieldName];
+            this.$nextTick(() => {
+                const inputElement = this.$refs[fieldName];
+                if (inputElement && this.editableFields[fieldName]) {
+                    this.setCursorToEnd(inputElement);
                 }
-            }
+            });
         },
         setCursorToEnd(inputElement) {
             if (inputElement) {
@@ -113,6 +198,7 @@ export default {
         async saveChanges() {
             try {
                 this.errors = {};
+                this.personalData.phone_number = this.cleanPhoneNumber(this.personalData.phone_number);
                 const response = await axios.post('/profile/personalData/update', this.personalData);
                 showNotification(response.data.message, 1, 3000);
                 await this.fetchPersonalData();
@@ -129,7 +215,49 @@ export default {
                     showNotification('Ошибка сервера', 0, 3000);
                 }
             }
-        }
+        },
+        formatPhoneNumberFromString(input) {
+            // Удаляем все нецифровые символы
+            input = input.replace(/\D/g, '');
+
+            // Ограничиваем длину номера
+            if (input.length > 11) {
+                input = input.substring(0, 11);
+            }
+
+            let formatted = '';
+
+            if (input.length > 0) {
+                formatted = '+' + input[0];
+            }
+
+            if (input.length > 1) {
+                formatted += '-' + input.substring(1, 4);
+            }
+
+            if (input.length > 4) {
+                formatted += '-' + input.substring(4, 7);
+            }
+
+            if (input.length > 7) {
+                formatted += '-' + input.substring(7, 9);
+            }
+
+            if (input.length > 9) {
+                formatted += '-' + input.substring(9, 11);
+            }
+
+            return formatted;
+        },
+
+        // Метод для обработки события ввода
+        handlePhoneNumberInput(event) {
+            const inputValue = event.target.value;
+            this.personalData.phone_number = this.formatPhoneNumberFromString(inputValue);
+        },
+        cleanPhoneNumber(phoneNumber) {
+            return phoneNumber.replace(/\D/g, '');
+        },
     }
 }
 </script>

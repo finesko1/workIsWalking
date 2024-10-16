@@ -25,14 +25,13 @@
                     </button>
                 </div>
             </form>
-            <div v-if="form.message">{{ form.message }}</div>
-            <div v-if="form.error">{{ form.message }}</div>
         </div>
     </div>
 </template>
 
 <script>
 import { ref } from "vue";
+import {showNotification} from "@/notifications.js";
 
 
     export default {
@@ -50,12 +49,12 @@ import { ref } from "vue";
                     form.value.message = '';
                     form.value.error = '';
                     const response = await axios.post('/forgot-password', {email: form.value.email});
-                    form.value.message = response.data.status;
+                    showNotification(response.data.message, 1, 4000);
                 } catch (e) {
-                    if (e.response && e.response.data && e.response.data.email) {
-                        form.value.error = e.response.data.email[0];
+                    if (e.response) {
+                        showNotification(e.response.data.error, 0, 3000);
                     } else {
-                        form.value.error = 'Something went wrong. Please try again later.';
+                        showNotification('Something went wrong. Please try again later.', 0, 4000);
                     }
                 }
             }
