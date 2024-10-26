@@ -24,7 +24,7 @@ class User extends Authenticatable implements AuthenticatableContract, MustVerif
     protected $guarded = [];
 
     protected $hidden = [
-        'password', 'remember_token'
+        'password', 'remember_token', 'id', 'email', 'email_verified_at', 'created_at', 'updated_at', 'deleted_at'
     ];
 
     protected function casts(): array
@@ -38,10 +38,30 @@ class User extends Authenticatable implements AuthenticatableContract, MustVerif
     // Для работы с таблицами личных данных и записями о работе
     public function personalData()
     {
-        return $this->hasOne(\App\Models\User\PersonalData::class, 'user_id');
+        return $this->hasOne(PersonalData::class, 'user_id');
     }
     public function employmentRecord() : HasOne
     {
         return $this->hasOne(EmploymentRecord::class);
+    }
+
+    public function friends() {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+            ->wherePivot('status', 'accepted');
+    }
+
+    public function pendings() {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+            ->wherePivot('status', 'pending');
+    }
+
+    public function followers() {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+            ->wherePivot('status', 'follower');
+    }
+
+    public function followings() {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+            ->wherePivot('status', 'following');
     }
 }

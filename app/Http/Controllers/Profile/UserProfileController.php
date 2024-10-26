@@ -22,7 +22,7 @@ class UserProfileController extends Controller
             $imageName = 'userImage'; // Имя файла без расширения
 
             // Проверяем существование файлов с различными расширениями
-            $extensions = ['jpg', 'jpeg', 'png', 'gif']; // Массив возможных расширений
+            $extensions = ['jpg', 'jpeg', 'png']; // Массив возможных расширений
 
             foreach ($extensions as $extension) {
                 $imagePath = "{$userFolder}/{$imageName}.{$extension}"; // Формируем полный путь к изображению

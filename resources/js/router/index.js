@@ -12,12 +12,17 @@ import ForgotPassword from '../components/auth/forgotPassword/ForgotPassword.vue
 import ResetPassword from "../components/auth/forgotPassword/ResetPassword.vue";
 
 import Profile from "../components/profile/Profile.vue";
-import ProfileSettings from "../components/settings/ProfileSettings.vue";
-import PersonalDataSettings from "../components/settings/PersonalDataSettings.vue";
+import ProfileSettings from "../components/profile/ProfileSettings.vue";
+import PersonalDataSettings from "../components/profile/PersonalDataSettings.vue";
 
 import Groups from "../components/messages/Groups.vue";
 
+import Friendship from "../components/friends/Friendship.vue";
 import Friends from "../components/friends/Friends.vue";
+import SearchFriends from "../components/friends/SearchFriends.vue";
+import Followers from "../components/friends/Followers.vue";
+import Followings from "../components/friends/Followings.vue";
+import Pendings from "../components/friends/Pendings.vue";
 
 import {useUserStore} from "@/stores/user.js";
 import { useRouterStore } from "@/stores/routerStore.js";
@@ -104,7 +109,7 @@ const routes = [
             },
             {
                 path: '/profile/personalDataSettings',
-                name: 'PersonalSettings',
+                name: 'PersonalDataSettings',
                 component: PersonalDataSettings
             },
         ]
@@ -123,9 +128,14 @@ const routes = [
         },
     },
     {
-        path: '/friends',
-        name: 'Friends',
-        component: Friends,
+        /* friendship - некое отношение к поиску
+            friends - отображение друзей и работа с ними
+            followers - подписчики и работа с ними
+            following - подписки и работа с ними
+         */
+        path: '/friendship',
+        name: 'Friendship',
+        component: Friendship,
         beforeEnter: (to, from, next) => {
             const userStore = useUserStore();
             if (userStore.isAuthenticated) {
@@ -134,6 +144,35 @@ const routes = [
                 next('/');
             }
         },
+        // временно. добавить навигационное меню
+        redirect: '/friendship/friends',
+        children: [
+            {
+                path: '/friendship/friends',
+                name: 'Friends',
+                component: Friends
+            },
+            {
+                path: '/friendship/search',
+                name: 'SearchFriends',
+                component: SearchFriends
+            },
+            {
+                path: '/friendship/pendings',
+                name: 'Pendings',
+                component: Pendings
+            },
+            {
+                path: '/friendship/followers',
+                name: 'Followers',
+                component: Followers
+            },
+            {
+                path: '/friendship/followings',
+                name: 'Followings',
+                component: Followings
+            },
+        ]
     }
 ];
 

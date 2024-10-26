@@ -1,15 +1,11 @@
 <template>
     <div class="flex w-full h-screen justify-center items-center">
-        <!-- Контейнер, который подстраивается под содержимое -->
         <div class="shadow-lg bg-gray-350 p-6 rounded-lg">
-            <!-- Вверх: Заголовок меню -->
             <header class="text-center mb-6">
                 <h2 class="text-lg font-semibold">{{ headForm }}</h2>
             </header>
 
-            <!-- Центр: Меню и форма -->
             <div class="flex justify-between">
-                <!-- Секция меню -->
                 <nav class="border-r-2 border-black">
                     <ul class="space-y-2">
                         <li>
