@@ -1,7 +1,7 @@
 <template>
     <div class='flex justify-center w-full'>
         <div v-if="pendings.length === 0">
-            <p>Нет подписчиков</p>
+            <p>Нет заявок</p>
         </div>
         <div v-else class="">
             <ul>

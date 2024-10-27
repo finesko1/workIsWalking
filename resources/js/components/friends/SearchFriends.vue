@@ -19,36 +19,156 @@
                         </div>
 
                         <div ref="checkDropdown" class="relative dropdown">
-                            <div class="flex items-center border-2 rounded-xl border-cyan-800 bg-cyan-600 text-white p-1">
-                                <button class="text-white" disabled>
+                            <div class="flex items-center border-2 rounded-xl border-cyan-800 bg-cyan-600 text-white p-1 mainButton">
+                                <button type='button' class="text-white hover:scale-95 hover:cursor-pointer focus:rounded-none transition-transform duration-200" disabled>
                                     <span v-if="user.status === 'accepted'">В друзьях</span>
-                                    <span v-else-if="user.status === null">Отправить заявку</span>
+                                    <span v-else-if="user.status === null" @click="addFollowing(user.id)"
+                                        class="">
+                                        Отправить заявку
+                                    </span>
+                                    <span v-else-if="user.status === 'follower'">Подписан на вас</span>
                                     <span v-else-if="user.status === 'following'">Заявка отправлена</span>
                                     <span v-else-if="user.status === 'pending'">Ожидает ответ</span>
                                     <span v-else-if="user.status === 'blockIt'">Заблокирован</span>
                                     <span v-else-if="user.status === 'blockMe'">Вы в черном списке</span>
+                                    <span v-else-if="user.status === 'blocked'">Заблокирован</span>
                                 </button>
-                                <button @click="toggleDropdown(index)">
+                                <button type='button' @click="toggleDropdown(index)" class="hover:scale-90 transition-transform">
                                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </button>
                             </div>
 
-                            <!-- Действия в выпадающем меню -->
-                            <div v-if="user.showOptions" class="absolute bg-white shadow-md rounded p-2 mt-1 z-10">
-                                <button v-if="user.status === null" @click="addFollowing(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                    </svg>
-                                    Добавить в друзья
-                                </button>
-                                <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-gray-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6m6 6V6" />
-                                    </svg>
-                                    Заблокировать
-                                </button>
+
+                            <div v-if="user.showOptions" class="absolute bg-cyan-800 shadow-md rounded-b-xl p-2 z-10">
+                                <div v-if="user.status === 'accepted'">
+                                    <button @click="addFollower(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Удалить из друзей
+                                    </button>
+                                    <button @click="" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Написать сообщение
+                                    </button>
+                                    <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6m6 6V6" />
+                                        </svg>
+                                        Заблокировать
+                                    </button>
+                                </div>
+                                <div  v-else-if="user.status === null">
+                                    <button @click="addFollowing(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Написать сообщение
+                                    </button>
+                                    <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6m6 6V6" />
+                                        </svg>
+                                        Заблокировать
+                                    </button>
+                                </div>
+                                <div v-else-if="user.status === 'follower'">
+                                    <button @click="addFriend(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Принять в друзья
+                                    </button>
+                                    <button @click="addFollowing(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Написать сообщение
+                                    </button>
+                                    <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6m6 6V6" />
+                                        </svg>
+                                        Заблокировать
+                                    </button>
+                                </div>
+                                <div v-else-if="user.status === 'following'">
+                                    <button @click="cancelFollowing(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Отменить заявку
+                                    </button>
+                                    <button @click="addFollowing(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Написать сообщение
+                                    </button>
+                                    <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6m6 6V6" />
+                                        </svg>
+                                        Заблокировать
+                                    </button>
+                                </div>
+                                <div v-else-if="user.status === 'pending'">
+                                    <button @click="addFriend(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Принять в друзья
+                                    </button>
+                                    <button @click="addFollower(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Оставить в подписчиках
+                                    </button>
+                                    <button @click="" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Написать сообщение
+                                    </button>
+                                    <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6m6 6V6" />
+                                        </svg>
+                                        Заблокировать
+                                    </button>
+                                </div>
+                                <div v-else-if="user.status === 'blockIt'">
+                                    <button @click="unblockUser(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Разблокировать
+                                    </button>
+                                </div>
+                                <div v-else-if="user.status === 'blockMe'">
+                                    <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6m6 6V6" />
+                                        </svg>
+                                        Заблокировать
+                                    </button>
+                                </div>
+                                <div v-else-if="user.status === 'blocked'">
+                                    <button @click="unblockUser(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Разблокировать
+                                    </button>
+                                </div>
+                                <div v-else class="text-red-500">
+                                    <span>Ошибка сервера</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -85,7 +205,6 @@ export default {
                 users.value.forEach(user => {
                     user.showOptions = false;
                 });
-                console.log(users.value);
             } catch (e) {
                 if (e.response) {
                     console.log(e.response.error);
@@ -97,31 +216,120 @@ export default {
 
 
         const toggleDropdown = (index) => {
+            let activeButton = document.querySelector('.mainButton.rounded-t-xl');
+            if (activeButton) {
+                activeButton.classList.remove('rounded-t-xl');
+                activeButton.classList.add('rounded-xl');
+            }
+
+            let dropdownButtons = document.getElementsByClassName('mainButton');
+
             users.value.forEach((user, i) => {
                 user.showOptions = i === index ? !user.showOptions : false;
             });
+
+            activeButton = dropdownButtons[index];
+
+            if (users.value[index].showOptions) {
+                activeButton.classList.remove('rounded-xl');
+                activeButton.classList.add('rounded-t-xl');
+            } else {
+                activeButton.classList.remove('rounded-t-xl');
+                activeButton.classList.add('rounded-xl');
+            }
         };
 
         const handleClickOutside = (event) => {
             if (!event.target.closest('.relative.dropdown')) {
                 users.value.forEach(user => user.showOptions = false);
+
+                const activeButton = document.querySelector('.mainButton.rounded-t-xl');
+                if (activeButton) {
+                    activeButton.classList.remove('rounded-t-xl');
+                    activeButton.classList.add('rounded-xl');
+                }
             }
         };
 
+        const hideMainButton = () => {
+            const activeButton = document.querySelector('.mainButton.rounded-t-xl');
+            if (activeButton) {
+                activeButton.classList.remove('rounded-t-xl');
+                activeButton.classList.add('rounded-xl');
+            }
+        }
 
-        const addFollowing = async (friendId) => {
+
+        const addFollowing = async (userId) => {
             try {
-                await axios.post(`/friendship/friends/following/${friendId}`);
+                await axios.post('/friendship/friends/following/' + userId);
+                await loadSearchFriends();
+                hideMainButton();
             } catch(e) {
+                console.log(e.message);
+            }
+        }
+
+        const addFollower = async (userId) => {
+            try {
+                await axios.delete('/friendship/friends/' + userId);
+                await loadSearchFriends();
+                hideMainButton();
+            } catch(e) {
+                console.log(e.message);
+            }
+        }
+
+        const cancelFollowing = async (userId) => {
+            try {
+                await axios.delete('/friendship/friends/following/' + userId);
+                await loadSearchFriends();
+                hideMainButton();
+            } catch(e) {
+                console.log(e.message);
+            }
+        }
+
+        const addFriend = async (userId) => {
+            try {
+                await axios.post('/friendship/friends/' + userId);
+                await loadSearchFriends();
+                hideMainButton();
+            } catch(e) {
+                console.log(e.message);
+            }
+        }
+
+        const blockUser = async (userId) => {
+            try {
+                await axios.post('/friendship/friends/block/' + userId);
+                await loadSearchFriends();
+                hideMainButton();
+            } catch (e) {
+                console.log(e.message);
+            }
+        }
+
+        const unblockUser = async (userId) => {
+            try {
+                await axios.delete('/friendship/friends/block/' + userId);
+                await loadSearchFriends();
+                hideMainButton();
+            } catch (e) {
                 console.log(e.message);
             }
         }
 
         return {
             users,
-            addFollowing,
             checkDropdown,
-            toggleDropdown
+            toggleDropdown,
+            addFollowing,
+            addFollower,
+            cancelFollowing,
+            addFriend,
+            blockUser,
+            unblockUser
         }
     }
 }

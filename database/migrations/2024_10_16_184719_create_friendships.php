@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('friend_id');
-            $table->enum('status', ['pending', 'accepted', 'blockIt', 'blockMe', 'following', 'follower'])->default('following');
+            $table->enum('status', ['pending', 'accepted', 'blockIt', 'blockMe', 'blocked', 'following', 'follower'])->default('following');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('friend_id')->references('id')->on('users')->onDelete('cascade');

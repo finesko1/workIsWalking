@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Friendship;
 use App\Http\Controllers\Controller;
 use App\Models\Friendship\Friendship;
 use App\Models\User\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -18,7 +19,6 @@ class FriendshipController extends Controller
             $usersData = $users->map(function ($user) use ($ownId) {
                 $imageUrl = $this->getUrl($user);
 
-                // Проверка на наличие personalData
                 if ($user->personalData && $user->personalData->first_name && $user->personalData->second_name) {
                     return [
                         'id' => $user->id,
@@ -36,16 +36,12 @@ class FriendshipController extends Controller
                     ];
                 }
             });
-
-            // Если запрос ожидает JSON (например, через Axios)
             if (request()->expectsJson()) {
                 return response()->json([
                     'message' => 'all successfully',
                     'usersData' => $usersData,
                 ], 200);
             }
-
-            // Если запрос был сделан через URL в браузере
             return view('welcome', [
                 'message' => 'all successfully',
                 'usersData' => $usersData,
@@ -59,28 +55,11 @@ class FriendshipController extends Controller
     public function showFriends() {
         try {
             $user = auth()->user();
-            $friends = $user->friends;
+            $friends = $user->friends()->whereNull('friendships.deleted_at')->get();;
             $user->friends->makeHidden('pivot');
 
-            $friendsData = $friends->map(function ($friend) {
-                if($friend->personalData->first_name && $friend->personalData->second_name) {
-                    // ссылка на фото профиля
-                    $imageUrl = $this->getUrl($friend);
-                    return [
-                        'id' => $friend->id,
-                        'first_name' => $friend->personalData->first_name,
-                        'second_name' => $friend->personalData->second_name,
-                        'image_url' => $imageUrl ? $imageUrl : null,
-                    ];
-                } else {
-                    // ссылка на фото профиля
-                    $imageUrl = $this->getUrl($friend);
-                    return [
-                        'id' => $friend->id,
-                        'login' => $friend->login,
-                        'image_url' => $imageUrl ? $imageUrl : null,
-                    ];
-                }
+            $friendsData = $friends->map(function ($user) {
+                return $this->getUsersData($user);
             });
 
             // Если запрос ожидает JSON (например, через Axios)
@@ -105,28 +84,11 @@ class FriendshipController extends Controller
     public function showPendings() {
         try {
             $user = auth()->user();
-            $pendings = $user->pendings;
+            $pendings = $user->pendings()->whereNull('friendships.deleted_at')->get();;
 
 
             $pendingsData = $pendings->map(function ($user) {
-                if ($user->personalData->first_name && $user->personalData->second_name) {
-                    // ссылка на фото профиля
-                    $imageUrl = $this->getUrl($user);
-                    return [
-                        'id' => $user->id,
-                        'first_name' => $user->personalData->first_name,
-                        'second_name' => $user->personalData->second_name,
-                        'image_url' => $imageUrl ? $imageUrl : null,
-                    ];
-                } else {
-                    // ссылка на фото профиля
-                    $imageUrl = $this->getUrl($user);
-                    return [
-                        'id' => $user->id,
-                        'login' => $user->login,
-                        'image_url' => $imageUrl ? $imageUrl : null,
-                    ];
-                }
+                return $this->getUsersData($user);
             });
 
             // Если запрос ожидает JSON (например, через Axios)
@@ -151,28 +113,11 @@ class FriendshipController extends Controller
     public function showFollowers() {
         try {
             $user = auth()->user();
-            $followers= $user->followers;
+            $followers= $user->followers()->whereNull('friendships.deleted_at')->get();;
 
 
             $followersData = $followers->map(function ($user) {
-                if ($user->personalData && $user->personalData->first_name && $user->personalData->second_name) {
-                    // ссылка на фото профиля
-                    $imageUrl = $this->getUrl($user);
-                    return [
-                        'id' => $user->id,
-                        'first_name' => $user->personalData->first_name,
-                        'second_name' => $user->personalData->second_name,
-                        'image_url' => $imageUrl ? $imageUrl : null,
-                    ];
-                } else {
-                    // ссылка на фото профиля
-                    $imageUrl = $this->getUrl($user);
-                    return [
-                        'id' => $user->id,
-                        'login' => $user->login,
-                        'image_url' => $imageUrl ? $imageUrl : null,
-                    ];
-                }
+                return $this->getUsersData($user);
             });
 
             // Если запрос ожидает JSON (например, через Axios)
@@ -197,36 +142,17 @@ class FriendshipController extends Controller
     public function showFollowings() {
         try {
             $user = auth()->user();
-            $followings= $user->followings;
+            $followings= $user->followings()->whereNull('friendships.deleted_at')->get();
 
             $followingsData = $followings->map(function ($user) {
-                if ($user->personalData && $user->personalData->first_name && $user->personalData->second_name) {
-                    $imageUrl = $this->getUrl($user);
-                    return [
-                        'id' => $user->id,
-                        'first_name' => $user->personalData->first_name,
-                        'second_name' => $user->personalData->second_name,
-                        'image_url' => $imageUrl ? $imageUrl : null,
-                    ];
-                } else {
-                    // ссылка на фото профиля
-                    $imageUrl = $this->getUrl($user);
-                    return [
-                        'id' => $user->id,
-                        'login' => $user->login,
-                        'image_url' => $imageUrl ? $imageUrl : null,
-                    ];
-                }
+                return $this->getUsersData($user);
             });
-            // Если запрос ожидает JSON (например, через Axios)
             if (request()->expectsJson()) {
                 return response()->json([
                     'message' => 'all successfully',
                     'followingsData' => $followingsData,
                 ], 200);
             }
-
-            // Если запрос был сделан через URL в браузере
             return view('welcome', [
                 'message' => 'all successfully',
                 'followingsData' => $followingsData,
@@ -237,45 +163,62 @@ class FriendshipController extends Controller
     }
 
 
+    public function showBlocked() {
+        try {
+            $user = auth()->user();
+            $blockedUsers= $user->blocked()->whereNull('friendships.deleted_at')->get();;
+            $blockedUsersData = $blockedUsers->map(function ($user) {
+                return $this->getUsersData($user);
+            });
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'message' => 'all successfully',
+                    'followingsData' => $blockedUsersData,
+                ], 200);
+            }
+            return view('welcome', [
+                'message' => 'all successfully',
+                'followingsData' => $blockedUsersData,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
     // Отправить заявку
     public function addFollowing($id) {
         try {
-            $userId = auth()->id();
-            $friendshipRecordOne = Friendship::where('user_id', $userId)->where('friend_id', $id)->first();
-            $friendshipRecordTwo = Friendship::where('friend_id', $id)->where('user_id', $userId)->first();
-            // Если первая запись найдена, обновляем статус
-            if ($friendshipRecordOne) {
-                $friendshipRecordOne->status = 'following';
-                $friendshipRecordOne->save();
-            } else {
-                // Если первой записи нет, создаем ее
-                $friendshipRecordOne = new Friendship();
-                $friendshipRecordOne->user_id = $userId;
-                $friendshipRecordOne->friend_id = $id;
-                $friendshipRecordOne->status = 'following';
-                $friendshipRecordOne->save();
-            }
-            // Если вторая запись найдена, обновляем статус
-            if ($friendshipRecordTwo) {
-                $friendshipRecordTwo->status = 'pending';
-                $friendshipRecordTwo->save();
-            } else {
-                // Если второй записи нет, создаем ее
-                $friendshipRecordTwo = new Friendship();
-                $friendshipRecordTwo->user_id = $id;
-                $friendshipRecordTwo->friend_id = $userId;
-                $friendshipRecordTwo->status = 'pending';
-                $friendshipRecordTwo->save();
-            }
+            DB::transaction(function() use ($id) {
+                $userId = auth()->id();
+                $friendshipRecordOne = Friendship::withTrashed()->where('user_id', $userId)->where('friend_id', $id)->first();
+                $friendshipRecordTwo = Friendship::withTrashed()->where('user_id', $id)->where('friend_id', $userId)->first();
 
-            // Если запрос ожидает JSON (например, через Axios)
+                if ($friendshipRecordOne) {
+                    if ($friendshipRecordOne->trashed()) {
+                        $friendshipRecordOne->restore();
+                    }
+                    $friendshipRecordOne->status = 'following';
+                    $friendshipRecordOne->save();
+                } else {
+                    Friendship::create(['user_id' => $userId, 'friend_id' => $id, 'status' => 'following']);
+                }
+                if ($friendshipRecordTwo) {
+                    if ($friendshipRecordTwo->trashed()) {
+                        $friendshipRecordTwo->restore();
+                    }
+                    $friendshipRecordTwo->status = 'pending';
+                    $friendshipRecordTwo->save();
+                } else {
+                    Friendship::create(['user_id' => $id, 'friend_id' => $userId, 'status' => 'pending']);
+                }
+            });
+
             if (request()->expectsJson()) {
                 return response()->json([
                     'message' => 'all successfully',
                 ], 200);
             }
-
-            // Если запрос был сделан через URL в браузере
             return view('welcome', [
                 'message' => 'all successfully',
             ]);
@@ -284,47 +227,31 @@ class FriendshipController extends Controller
         }
     }
 
+
     // Принять в друзья
     public function addFriend($id) {
         try {
             $userId = auth()->id();
-
-            // Поиск существующих записей
             $friendshipRecordOne = Friendship::where('user_id', $userId)->where('friend_id', $id)->first();
             $friendshipRecordTwo = Friendship::where('user_id', $id)->where('friend_id', $userId)->first();
 
-            // Если первая запись найдена, обновляем статус
             if ($friendshipRecordOne) {
                 $friendshipRecordOne->status = 'accepted';
                 $friendshipRecordOne->save();
             } else {
-                // Если первой записи нет, создаем ее
-                $friendshipRecordOne = new Friendship();
-                $friendshipRecordOne->user_id = $userId;
-                $friendshipRecordOne->friend_id = $id;
-                $friendshipRecordOne->status = 'accepted';
-                $friendshipRecordOne->save();
+                Friendship::create(['user_id' => $id,  'friend_id' => $id, 'status' => 'accepted']);
             }
-            // Если вторая запись найдена, обновляем статус
             if ($friendshipRecordTwo) {
                 $friendshipRecordTwo->status = 'accepted';
                 $friendshipRecordTwo->save();
             } else {
-                // Если второй записи нет, создаем ее
-                $friendshipRecordTwo = new Friendship();
-                $friendshipRecordTwo->user_id = $id;
-                $friendshipRecordTwo->friend_id = $userId;
-                $friendshipRecordTwo->status = 'accepted';
-                $friendshipRecordTwo->save();
+                Friendship::create(['user_id' => $id, 'friend_id' => $userId, 'status' => 'accepted']);
             }
-            // Если запрос ожидает JSON (например, через Axios)
             if (request()->expectsJson()) {
                 return response()->json([
                     'message' => 'all successfully',
                 ], 200);
             }
-
-            // Если запрос был сделан через URL в браузере
             return view('welcome', [
                 'message' => 'all successfully',
             ]);
@@ -337,40 +264,59 @@ class FriendshipController extends Controller
     public function addFollower($id) {
         try {
             $userId = auth()->id();
+            // $friendshipRecordOne = Friendship::withTrashed()->where('user_id', $userId)->where('friend_id', $id)->first();
             $friendshipRecordOne = Friendship::where('user_id', $userId)->where('friend_id', $id)->first();
             $friendshipRecordTwo = Friendship::where('user_id', $id)->where('friend_id', $userId)->first();
-            // Если первая запись найдена, обновляем статус
             if ($friendshipRecordOne) {
                 $friendshipRecordOne->status = 'follower';
                 $friendshipRecordOne->save();
             } else {
-                // Если первой записи нет, создаем ее
-                $friendshipRecordOne = new Friendship();
-                $friendshipRecordOne->user_id = $userId;
-                $friendshipRecordOne->friend_id = $id;
-                $friendshipRecordOne->status = 'follower';
-                $friendshipRecordOne->save();
+                //$friendshipRecordOne = new Friendship();
+                //$friendshipRecordOne->user_id = $userId;
+                //$friendshipRecordOne->friend_id = $id;
+                //$friendshipRecordOne->status = 'follower';
+                //$friendshipRecordOne->save();
+                Friendship::create(['user_id' => $userId, 'friend_id' => $id, 'status' => 'follower']);
             }
-            // Если вторая запись найдена, обновляем статус
             if ($friendshipRecordTwo) {
                 $friendshipRecordTwo->status = 'following';
                 $friendshipRecordTwo->save();
             } else {
-                // Если второй записи нет, создаем ее
-                $friendshipRecordTwo = new Friendship();
-                $friendshipRecordTwo->user_id = $id;
-                $friendshipRecordTwo->friend_id = $userId;
-                $friendshipRecordTwo->status = 'following';
-                $friendshipRecordTwo->save();
+                Friendship::create(['user_id' => $id, 'friend_id' => $userId, 'status' => 'following']);
             }
-            // Если запрос ожидает JSON (например, через Axios)
             if (request()->expectsJson()) {
                 return response()->json([
                     'message' => 'all successfully',
                 ], 200);
             }
+            return view('welcome', [
+                'message' => 'all successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Status updated probably.'], 500);
+        }
+    }
 
-            // Если запрос был сделан через URL в браузере
+
+    // Отменить заявку
+    public function cancelFollowing($id) {
+        try {
+            DB::transaction(function () use ($id) {
+                $userId = auth()->id();
+                $friendshipRecordOne = Friendship::where('user_id', $userId)->where('friend_id', $id)->first();
+                $friendshipRecordTwo = Friendship::where('user_id', $id)->where('friend_id', $userId)->first();
+                if ($friendshipRecordOne) {
+                    $friendshipRecordOne->delete();
+                }
+                if ($friendshipRecordTwo) {
+                    $friendshipRecordTwo->delete();
+                }
+            });
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'message' => 'all successfully',
+                ], 200);
+            }
             return view('welcome', [
                 'message' => 'all successfully',
             ]);
@@ -380,6 +326,108 @@ class FriendshipController extends Controller
     }
 
     // Заблокировать пользователя
+    public function blockIt($id) {
+        try {
+            DB::transaction(function() use ($id) {
+                $userId = auth()->id();
+                $friendshipRecordOne = Friendship::withTrashed()
+                    ->where('user_id', $userId)
+                    ->where('friend_id', $id)
+                    ->first();
+                $friendshipRecordTwo = Friendship::withTrashed()
+                    ->where('user_id', $id)
+                    ->where('friend_id', $userId)
+                    ->first();
+
+                if ($friendshipRecordOne) {
+                    if ($friendshipRecordOne->status === 'blockMe') {
+                        $friendshipRecordOne->status = 'blocked';
+                    } else {
+                        $friendshipRecordOne->status = 'blockIt';
+                    }
+                    $friendshipRecordOne->save();
+                } else {
+                    Friendship::create([
+                        'user_id' => $userId,
+                        'friend_id' => $id,
+                        'status' => 'blockIt'
+                    ]);
+                }
+
+                if ($friendshipRecordTwo) {
+                    if ($friendshipRecordTwo->status === 'blockIt') {
+                        $friendshipRecordTwo->status = 'blocked';
+                    } else {
+                        $friendshipRecordTwo->status = 'blockMe';
+                    }
+                    $friendshipRecordTwo->save();
+                } else {
+                    Friendship::create([
+                        'user_id' => $id,
+                        'friend_id' => $userId,
+                        'status' => 'blockMe'
+                    ]);
+                }
+            });
+
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'message' => 'all successfully',
+                ], 200);
+            }
+
+            return view('welcome', [
+                'message' => 'all successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Status updated probably.'], 500);
+        }
+    }
+
+    // Разблокировать пользователя
+    public function unblockIt($id) {
+        try {
+            DB::transaction(function() use ($id) {
+                $userId = auth()->id();
+
+                $friendshipRecordOne = Friendship::withTrashed()
+                    ->where('user_id', $userId)
+                    ->where('friend_id', $id)
+                    ->first();
+                $friendshipRecordTwo = Friendship::withTrashed()
+                    ->where('user_id', $id)
+                    ->where('friend_id', $userId)
+                    ->first();
+
+                if ($friendshipRecordOne) {
+                    if ($friendshipRecordOne->status === 'blockIt') {
+                        $friendshipRecordOne->delete();
+                    } elseif ($friendshipRecordOne->status === 'blocked') {
+                        $friendshipRecordOne->status = 'blockMe';
+                        $friendshipRecordOne->save();
+                    }
+                }
+
+                if ($friendshipRecordTwo) {
+                    if ($friendshipRecordTwo->status === 'blockMe') {
+                        $friendshipRecordTwo->delete();
+                    } elseif ($friendshipRecordTwo->status === 'blocked') {
+                        $friendshipRecordTwo->status = 'blockIt';
+                        $friendshipRecordTwo->save();
+                    }
+                }
+            });
+
+            if (request()->expectsJson()) {
+                return response()->json(['message' => 'Successfully unblocked.'], 200);
+            }
+
+            return view('welcome', ['message' => 'Successfully unblocked.']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Unblock action failed: ' . $e->getMessage()], 500);
+        }
+    }
+
 
     /**
      * @param $user
@@ -399,5 +447,29 @@ class FriendshipController extends Controller
             }
         }
         return '';
+    }
+
+    /**
+     * @param User $user
+     * @return array
+     */
+    private function getUsersData($user) {
+        $imageUrl = $this->getUrl($user);
+        if ($user->personalData && $user->personalData->first_name && $user->personalData->second_name) {
+            return [
+                'id' => $user->id,
+                'first_name' => $user->personalData->first_name,
+                'second_name' => $user->personalData->second_name,
+                'image_url' => $imageUrl ? $imageUrl : null,
+            ];
+        } else {
+            // ссылка на фото профиля
+            $imageUrl = $this->getUrl($user);
+            return [
+                'id' => $user->id,
+                'login' => $user->login,
+                'image_url' => $imageUrl ? $imageUrl : null,
+            ];
+        }
     }
 }

@@ -75,12 +75,20 @@ Route::get('/friendship/search', [FriendshipController::class, 'showAll'])->name
 Route::get('/friendship/pendings', [FriendshipController::class, 'showPendings'])->name('pendings.show');
 Route::get('/friendship/followers', [FriendshipController::class, 'showFollowers'])->name('followers.show');
 Route::get('/friendship/followings', [FriendshipController::class, 'showFollowings'])->name('followings.show');
+Route::get('/friendship/blocked', [FriendshipController::class, 'showBlocked'])->name('blocked.show');
 
+// отправить заявку
 Route::post('/friendship/friends/following/{id}', [FriendshipController::class, 'addFollowing'])->name('following.add');
-
+// отменить отправленную заявку
+Route::delete('/friendship/friends/following/{id}', [FriendshipController::class, 'cancelFollowing'])->name('following.delete');
+// принять заявку
 Route::post('/friendship/friends/{id}', [FriendshipController::class, 'addFriend'])->name('friend.add');
+// удалить из друзей, отменить заявку пользователя
 Route::delete('/friendship/friends/{id}', [FriendshipController::class, 'addFollower'])->name('friend.delete');
-
+// заблокировать пользователя
+Route::post('/friendship/friends/block/{id}', [FriendshipController::class, 'blockIt'])->name('block.add');
+// разблокировать пользователя
+Route::delete('/friendship/friends/block/{id}', [FriendshipController::class, 'unblockIt'])->name('block.delete');
 
 
 Route::get('/{any}', function () {
