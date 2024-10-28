@@ -173,12 +173,12 @@ class FriendshipController extends Controller
             if (request()->expectsJson()) {
                 return response()->json([
                     'message' => 'all successfully',
-                    'followingsData' => $blockedUsersData,
+                    'blockedData' => $blockedUsersData,
                 ], 200);
             }
             return view('welcome', [
                 'message' => 'all successfully',
-                'followingsData' => $blockedUsersData,
+                'blockedData' => $blockedUsersData,
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -235,17 +235,14 @@ class FriendshipController extends Controller
             $friendshipRecordOne = Friendship::where('user_id', $userId)->where('friend_id', $id)->first();
             $friendshipRecordTwo = Friendship::where('user_id', $id)->where('friend_id', $userId)->first();
 
-            if ($friendshipRecordOne) {
+            if ($friendshipRecordOne && ($friendshipRecordOne->status === 'follower' || $friendshipRecordOne->status === 'pending')) {
                 $friendshipRecordOne->status = 'accepted';
                 $friendshipRecordOne->save();
-            } else {
-                Friendship::create(['user_id' => $id,  'friend_id' => $id, 'status' => 'accepted']);
             }
-            if ($friendshipRecordTwo) {
+            // else Friendship::create(['user_id' => $id,  'friend_id' => $id, 'status' => 'accepted']);
+            if ($friendshipRecordTwo && $friendshipRecordTwo->status === 'following') {
                 $friendshipRecordTwo->status = 'accepted';
                 $friendshipRecordTwo->save();
-            } else {
-                Friendship::create(['user_id' => $id, 'friend_id' => $userId, 'status' => 'accepted']);
             }
             if (request()->expectsJson()) {
                 return response()->json([
@@ -260,29 +257,26 @@ class FriendshipController extends Controller
         }
     }
 
-    // Отклонить заявку, удалить друга
+    // Отклонить заявку в друзья, удалить друга
     public function addFollower($id) {
         try {
             $userId = auth()->id();
             // $friendshipRecordOne = Friendship::withTrashed()->where('user_id', $userId)->where('friend_id', $id)->first();
             $friendshipRecordOne = Friendship::where('user_id', $userId)->where('friend_id', $id)->first();
             $friendshipRecordTwo = Friendship::where('user_id', $id)->where('friend_id', $userId)->first();
-            if ($friendshipRecordOne) {
+            if ($friendshipRecordOne &&  ($friendshipRecordOne->status === 'pending' || $friendshipRecordOne->status === 'accepted')) {
                 $friendshipRecordOne->status = 'follower';
                 $friendshipRecordOne->save();
-            } else {
-                //$friendshipRecordOne = new Friendship();
-                //$friendshipRecordOne->user_id = $userId;
-                //$friendshipRecordOne->friend_id = $id;
-                //$friendshipRecordOne->status = 'follower';
-                //$friendshipRecordOne->save();
-                Friendship::create(['user_id' => $userId, 'friend_id' => $id, 'status' => 'follower']);
             }
-            if ($friendshipRecordTwo) {
+            //$friendshipRecordOne = new Friendship();
+            //$friendshipRecordOne->user_id = $userId;
+            //$friendshipRecordOne->friend_id = $id;
+            //$friendshipRecordOne->status = 'follower';
+            //$friendshipRecordOne->save();
+            //  or Friendship::create(['user_id' => $userId, 'friend_id' => $id, 'status' => 'follower']);
+            if ($friendshipRecordTwo &&  ($friendshipRecordTwo->status === 'following' || $friendshipRecordTwo->status === 'accepted')) {
                 $friendshipRecordTwo->status = 'following';
                 $friendshipRecordTwo->save();
-            } else {
-                Friendship::create(['user_id' => $id, 'friend_id' => $userId, 'status' => 'following']);
             }
             if (request()->expectsJson()) {
                 return response()->json([
@@ -298,17 +292,17 @@ class FriendshipController extends Controller
     }
 
 
-    // Отменить заявку
+    // Отменить отправленную заявку
     public function cancelFollowing($id) {
         try {
             DB::transaction(function () use ($id) {
                 $userId = auth()->id();
                 $friendshipRecordOne = Friendship::where('user_id', $userId)->where('friend_id', $id)->first();
                 $friendshipRecordTwo = Friendship::where('user_id', $id)->where('friend_id', $userId)->first();
-                if ($friendshipRecordOne) {
+                if ($friendshipRecordOne && $friendshipRecordOne->status === 'following') {
                     $friendshipRecordOne->delete();
                 }
-                if ($friendshipRecordTwo) {
+                if ($friendshipRecordTwo && $friendshipRecordTwo->status === 'pending') {
                     $friendshipRecordTwo->delete();
                 }
             });
@@ -345,6 +339,9 @@ class FriendshipController extends Controller
                     } else {
                         $friendshipRecordOne->status = 'blockIt';
                     }
+                    if ($friendshipRecordOne->trashed()) {
+                        $friendshipRecordOne->restore();
+                    }
                     $friendshipRecordOne->save();
                 } else {
                     Friendship::create([
@@ -359,6 +356,9 @@ class FriendshipController extends Controller
                         $friendshipRecordTwo->status = 'blocked';
                     } else {
                         $friendshipRecordTwo->status = 'blockMe';
+                    }
+                    if ($friendshipRecordOne->trashed()) {
+                        $friendshipRecordOne->restore();
                     }
                     $friendshipRecordTwo->save();
                 } else {
@@ -399,6 +399,11 @@ class FriendshipController extends Controller
                     ->where('friend_id', $userId)
                     ->first();
 
+                /*
+                 * if ($friendshipRecordOne->trashed()) {
+                            $friendshipRecordOne->restore();
+                        }
+                 */
                 if ($friendshipRecordOne) {
                     if ($friendshipRecordOne->status === 'blockIt') {
                         $friendshipRecordOne->delete();

@@ -23,6 +23,7 @@ import SearchFriends from "../components/friends/SearchFriends.vue";
 import Followers from "../components/friends/Followers.vue";
 import Followings from "../components/friends/Followings.vue";
 import Pendings from "../components/friends/Pendings.vue";
+import Blocked from "../components/friends/Blocked.vue";
 
 import {useUserStore} from "@/stores/user.js";
 import { useRouterStore } from "@/stores/routerStore.js";
@@ -128,11 +129,6 @@ const routes = [
         },
     },
     {
-        /* friendship - некое отношение к поиску
-            friends - отображение друзей и работа с ними
-            followers - подписчики и работа с ними
-            following - подписки и работа с ними
-         */
         path: '/friendship',
         name: 'Friendship',
         component: Friendship,
@@ -171,6 +167,11 @@ const routes = [
                 path: '/friendship/followings',
                 name: 'Followings',
                 component: Followings
+            },
+            {
+                path: '/friendship/blocked',
+                name: 'Blocked',
+                component: Blocked
             },
         ]
     }

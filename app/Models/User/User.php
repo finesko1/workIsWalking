@@ -67,6 +67,7 @@ class User extends Authenticatable implements AuthenticatableContract, MustVerif
 
     public function blocked() {
         return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
-            ->wherePivot('status', 'blocked')->orWherePivot('status', 'blockMe');
+            ->wherePivotIn('status', ['blocked', 'blockIt'])
+            ->where('users.id', '!=', auth()->id());
     }
 }
