@@ -58,7 +58,7 @@
 <script>
     import { useUserStore } from "@/stores/user.js";
     import {onMounted, ref, watch} from "vue";
-    import {useFormStore} from "@/stores/formstore.js";
+    import {useFormStore} from "@/stores/formStore.js";
     export default {
         name: 'Register',
         setup() {

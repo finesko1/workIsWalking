@@ -45,9 +45,9 @@
                             <div v-if="user.showOptions" class="absolute bg-cyan-600 shadow-lg rounded-b-xl p-2 z-10 w-full">
 <!--                                В друзьях-->
                                 <div v-if="user.status === 'accepted'" class="w-full">
-                                    <button @click="addFollower(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100 w-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    <button @click="addFollower(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
                                         </svg>
                                         Удалить из друзей
                                     </button>
@@ -59,7 +59,7 @@
                                     </button>
                                     <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                         </svg>
                                         Заблокировать
                                     </button>
@@ -75,7 +75,7 @@
                                     </button>
                                     <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                         </svg>
                                         Заблокировать
                                     </button>
@@ -83,9 +83,9 @@
 
 <!--                                Подписан на вас-->
                                 <div v-else-if="user.status === 'follower'" class="w-full">
-                                    <button @click="addFriend(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-gray-100 w-full">
+                                    <button @click="addFriend(user.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6m6 6V6" />
                                         </svg>
                                         Принять в друзья
                                     </button>
@@ -95,9 +95,9 @@
                                         </svg>
                                         Написать сообщение
                                     </button>
-                                    <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-gray-100 w-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6m6 6V6" />
+                                    <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                         </svg>
                                         Заблокировать
                                     </button>
@@ -119,7 +119,7 @@
                                     </button>
                                     <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                         </svg>
                                         Заблокировать
                                     </button>
@@ -147,7 +147,7 @@
                                     </button>
                                     <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                         </svg>
                                         Заблокировать
                                     </button>
@@ -155,9 +155,12 @@
 
 <!--                                Вы его заблокировали-->
                                 <div v-else-if="user.status === 'blockIt'" class="w-full">
-                                    <button @click="unblockUser(block.id)" class="flex items-center rounded-full font-medium  text-black p-2 hover:bg-cyan-700 hover:scale-95 hover:text-green-400 transition-transform duration-300 ease-in-out w-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    <button @click="unblockUser(user.id)" class="flex items-center rounded-full font-medium  text-black p-2 hover:bg-cyan-700 hover:scale-95 group hover:text-green-400 transition-transform duration-300 ease-in-out w-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-red-600 group-hover:hidden">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                                        </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-green-600 hidden group-hover:block">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                         </svg>
                                         Разблокировать
                                     </button>
@@ -167,7 +170,7 @@
                                 <div v-else-if="user.status === 'blockMe'" class="w-full">
                                     <button @click="blockUser(user.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                         </svg>
                                         Заблокировать
                                     </button>
@@ -175,9 +178,12 @@
 
 <!--                                Вы заблокировали друг друга-->
                                 <div v-else-if="user.status === 'blocked'" class="w-full">
-                                    <button @click="unblockUser(block.id)" class="flex items-center rounded-full font-medium  text-black p-2 hover:bg-cyan-700 hover:scale-95 hover:text-green-400 transition-transform duration-300 ease-in-out w-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    <button @click="unblockUser(user.id)" class="flex items-center rounded-full font-medium  text-black p-2 hover:bg-cyan-700 hover:scale-95 group hover:text-green-400 transition-transform duration-300 ease-in-out w-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-red-600 group-hover:hidden">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                                        </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-green-600 hidden group-hover:block">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                         </svg>
                                         Разблокировать
                                     </button>
@@ -198,7 +204,6 @@
 
 <script>
 import {onBeforeUnmount, onMounted, ref} from "vue";
-import { toggleDropdown, addFollowing, addFollower, cancelFollowing, addFriend, blockUser, unblockUser } from '@/workWithUserState';
 export default {
     name: 'SearchFriends',
     setup() {

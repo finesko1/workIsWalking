@@ -5,7 +5,7 @@
         </div>
         <div v-else class="">
             <ul>
-                <li v-for="(pending, index) in pendings" :key="pending.id" class="">
+                <li v-for="(pending, index) in pendings" :key="pending.id" class="flex justify-between items-center">
                     <div class="p-2 bg-neutral-400 rounded-xl inline-flex items-center w-full justify-between">
                         <div class="flex items-center mr-3">
                             <img v-if="pending.image_url" :src="pending.image_url" alt="User Image"
@@ -18,45 +18,45 @@
                                 {{ pending.login || (pending.first_name + ' ' + pending.second_name) }}
                             </div>
                         </div>
-                    </div>
 
-                    <div ref="checkDropdown" class="relative dropdown">
-                        <div class="flex items-center shadow-lg rounded-xl bg-cyan-600 text-white p-1 mainButton w-48 justify-between">
-                            <div class="text-white">
-                                <div class="text-blue">Действия</div>
+                        <div ref="checkDropdown" class="relative dropdown flex-inline">
+                            <div class="flex items-center shadow-lg rounded-xl bg-cyan-600 text-white p-1 mainButton w-48 justify-between">
+                                <div class="text-white">
+                                    <div class="text-blue">Действия</div>
+                                </div>
+                                <button type='button' @click="toggleDropdown(index)" class="hover:scale-90 transition-transform">
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
                             </div>
-                            <button type='button' @click="toggleDropdown(index)" class="hover:scale-90 transition-transform">
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </button>
-                        </div>
 
-                        <div class="w-full">
-                            <button @click="addFriend(pending.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                </svg>
-                                Принять в друзья
-                            </button>
-                            <button @click="addFollower(pending.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
-                                </svg>
-                                Оставить в подписчиках
-                            </button>
-                            <button @click="" class="flex items-center rounded-full text-white p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-                                </svg>
-                                Написать сообщение
-                            </button>
-                            <button @click="blockUser(pending.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
-                                </svg>
-                                Заблокировать
-                            </button>
+                            <div v-if="pending.showOptions" class="absolute bg-cyan-600 shadow-lg rounded-b-xl p-2 z-10 w-full">
+                                <button @click="addFriend(pending.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                    Принять в друзья
+                                </button>
+                                <button @click="addFollower(pending.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+                                    </svg>
+                                    Оставить в подписчиках
+                                </button>
+                                <button @click="" class="flex items-center rounded-full text-white p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                                    </svg>
+                                    Написать сообщение
+                                </button>
+                                <button @click="blockUser(pending.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                                    </svg>
+                                    Заблокировать
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </li>
@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import {onBeforeUnmount, onMounted, ref} from "vue";
 
 export default {
     name: 'Pendings',
@@ -75,13 +75,22 @@ export default {
 
         onMounted(async () => {
             await loadPendings();
-        });
+            document.addEventListener('click', handleClickOutside);
+        })
+
+        onBeforeUnmount(() => {
+            document.removeEventListener('click', handleClickOutside);
+        })
+
 
 
         const loadPendings = async () => {
             try {
                 const response = await axios.get('/friendship/pendings');
                 pendings.value = response.data.pendingsData || [];
+                pendings.value.forEach(user => {
+                    user.showOptions = false;
+                });
             } catch (e) {
                 if (e.response) {
                     console.log(e.response.error);
@@ -95,7 +104,8 @@ export default {
         const addFriend = async (friendId) => {
             try {
                 await axios.post('/friendship/friends/' + friendId);
-                pendings.value = pendings.value.filter(friend => friend.id !== friendId);
+                await loadPendings();
+                hideMainButton();
             } catch(e) {
                 console.log(e.message);
             }
@@ -104,9 +114,64 @@ export default {
         const addFollower = async (friendId) => {
             try {
                 await axios.delete('/friendship/friends/' + friendId);
-                pendings.value = pendings.value.filter(friend => friend.id !== friendId);
+                await loadPendings();
+                hideMainButton();
             } catch(e) {
                 console.log(e.message);
+            }
+        }
+
+        const blockUser = async (userId) => {
+            try {
+                await axios.post('/friendship/friends/block/' + userId);
+                await loadPendings();
+                hideMainButton();
+            } catch (e) {
+                console.log(e.message);
+            }
+        }
+
+        const toggleDropdown = (index) => {
+            let activeButton = document.querySelector('.mainButton.rounded-t-xl');
+            if (activeButton) {
+                activeButton.classList.remove('rounded-t-xl');
+                activeButton.classList.add('rounded-xl');
+            }
+
+            let dropdownButtons = document.getElementsByClassName('mainButton');
+
+            pendings.value.forEach((user, i) => {
+                user.showOptions = i === index ? !user.showOptions : false;
+            });
+
+            activeButton = dropdownButtons[index];
+
+            if (pendings.value[index].showOptions) {
+                activeButton.classList.remove('rounded-xl');
+                activeButton.classList.add('rounded-t-xl');
+            } else {
+                activeButton.classList.remove('rounded-t-xl');
+                activeButton.classList.add('rounded-xl');
+            }
+        }
+
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.relative.dropdown')) {
+                pendings.value.forEach(user => user.showOptions = false);
+
+                const activeButton = document.querySelector('.mainButton.rounded-t-xl');
+                if (activeButton) {
+                    activeButton.classList.remove('rounded-t-xl');
+                    activeButton.classList.add('rounded-xl');
+                }
+            }
+        }
+
+        const hideMainButton = () => {
+            const activeButton = document.querySelector('.mainButton.rounded-t-xl');
+            if (activeButton) {
+                activeButton.classList.remove('rounded-t-xl');
+                activeButton.classList.add('rounded-xl');
             }
         }
 
@@ -114,7 +179,9 @@ export default {
         return {
             pendings,
             addFollower,
-            addFriend
+            addFriend,
+            toggleDropdown,
+            blockUser
         }
     }
 }

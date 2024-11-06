@@ -141,7 +141,7 @@
 import { ref, onMounted, computed } from "vue";
 import { useUserStore } from "@/stores/user.js";
 import { showNotification, notificationState } from "@/notifications.js";
-import { useRouterStore } from "@/stores/routerstore.js";
+import { useRouterStore } from "@/stores/routerStore.js";
 import { useRouter } from 'vue-router';  // Import useRouter
 
 export default {

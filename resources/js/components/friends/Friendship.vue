@@ -17,14 +17,14 @@
                             <label @click="navigateTo(currentLinkPath)" class="hover:cursor-pointer">
                                 {{ currentLink }}
                             </label>
-                            <button @click.stop="dropdownState = !dropdownState" class="ml-1 focus:outline-none">
+                            <button id="dropdownStateButton" @click.stop="toggleDropdownFollower" class="ml-1 focus:outline-none">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>
                         </div>
 
-                        <div v-if="dropdownState" class="absolute left-0 z-10 w-full mt-1 bg-gray-400 rounded-lg shadow-lg">
+                        <div v-if="followersMenu" class="absolute left-0 z-20 w-full mt-1 bg-gray-400 rounded-lg shadow-lg">
                             <div
                                 v-for="link in links"
                                 :key="link.name"
@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { onMounted, ref, watch } from "vue";
+import {onBeforeUnmount, onMounted, ref, watch} from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 export default {
@@ -59,7 +59,7 @@ export default {
         const headForm = ref('Список друзей');
         const currentLink = ref('Подписчики');
         const currentLinkPath = ref('/friendship/followers'); // начальный путь
-        const dropdownState = ref(false);
+        const followersMenu = ref(false);
         const route = useRoute();
         const router = useRouter();
 
@@ -86,7 +86,15 @@ export default {
             } else {
                 headForm.value = 'Люди';
             }
-        };
+        }
+
+        onMounted(() => {
+            document.addEventListener('click', handleDropdownFollower);
+        });
+
+        onBeforeUnmount(() => {
+            document.removeEventListener('click', handleDropdownFollower);
+        });
 
         watch(() => route.path, () => {
             updateHeadForm();
@@ -98,18 +106,38 @@ export default {
         const selectLink = (link) => {
             currentLink.value = link.name;
             currentLinkPath.value = link.path;
-            dropdownState.value = false;
+            followersMenu.value = false;
             navigateTo(link.path);
+        };
+
+        const toggleDropdownFollower = () => {
+            followersMenu.value = !followersMenu.value;
+        };
+
+        const handleDropdownFollower = (event) => {
+            const dropdownButton = document.getElementById('dropdownStateButton');
+            if (dropdownButton && !dropdownButton.contains(event.target) && !event.target.closest('.z-20')) {
+                followersMenu.value = false;
+            }
+
+            if (!event.target.closest('.relative.dropdown')) {
+                let activeButton = document.querySelector('.mainButton.rounded-t-xl');
+                if (activeButton) {
+                    activeButton.classList.remove('rounded-t-xl');
+                    activeButton.classList.add('rounded-xl');
+                }
+            }
         };
 
         return {
             headForm,
             currentLink,
             currentLinkPath,
-            dropdownState,
+            followersMenu,
             links,
             selectLink,
-            navigateTo
+            navigateTo,
+            toggleDropdownFollower
         }
     }
 }
