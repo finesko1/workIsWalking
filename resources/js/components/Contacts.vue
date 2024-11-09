@@ -10,7 +10,7 @@
                     Distance module <span class="italic">- Горячая линия</span>
                 </li>
                 <li class="indent-8 border-b border-dashed border-blue-800">
-                    Distance module - <span class="italic">- Предложения</span>
+                    Distance module <span class="italic">- Предложения</span>
                 </li>
             </ul>
         </div>
