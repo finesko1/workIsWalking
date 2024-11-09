@@ -24,7 +24,7 @@
                     +7-900-900-90-90 <span class="italic">- номер телефона</span>
                 </li>
                 <li class="indent-8 border-b border-dashed border-blue-800">
-                    workIsWalking@mail.ru <span class="italic">- почта</span>
+                    distanceModule@mail.ru <span class="italic">- почта</span>
                 </li>
             </ul>
         </div>
