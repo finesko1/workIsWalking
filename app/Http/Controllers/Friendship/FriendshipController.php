@@ -51,7 +51,6 @@ class FriendshipController extends Controller
         }
     }
 
-
     public function showFriends() {
         try {
             $user = auth()->user();
@@ -79,7 +78,6 @@ class FriendshipController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
 
     public function showPendings() {
         try {
@@ -109,7 +107,6 @@ class FriendshipController extends Controller
         }
     }
 
-
     public function showFollowers() {
         try {
             $user = auth()->user();
@@ -138,7 +135,6 @@ class FriendshipController extends Controller
         }
     }
 
-
     public function showFollowings() {
         try {
             $user = auth()->user();
@@ -162,7 +158,6 @@ class FriendshipController extends Controller
         }
     }
 
-
     public function showBlocked() {
         try {
             $user = auth()->user();
@@ -184,7 +179,6 @@ class FriendshipController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
 
     // Отправить заявку
     public function addFollowing($id) {
@@ -226,7 +220,6 @@ class FriendshipController extends Controller
             return response()->json(['error' => 'Status updated probably.'], 500);
         }
     }
-
 
     // Принять в друзья
     public function addFriend($id) {
@@ -290,7 +283,6 @@ class FriendshipController extends Controller
             return response()->json(['error' => 'Status updated probably.'], 500);
         }
     }
-
 
     // Отменить отправленную заявку
     public function cancelFollowing($id) {

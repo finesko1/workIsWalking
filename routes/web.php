@@ -13,6 +13,7 @@ use App\Http\Controllers\Friendship\FriendshipController;
 // middlewares
 use Illuminate\Auth\Middleware\Authenticate;
 
+use App\Http\Controllers\Profile\FriendshipProfileController;
 
 //
 //Route::get('{path}', function() {
@@ -57,10 +58,13 @@ Route::get('/contacts', function() {
 });
 
 
-// Профиль пользователя
+// Профиль авторизованного пользователя
 Route::get('/profile', function() {
     return redirect('/');
 });
+// Профиль другого пользователя
+Route::get('/profile/{id}', [FriendshipProfileController::class, 'show'])->name('friendshipProfile.show');
+
 // Настройки профиля
 Route::get('/profile/profileSettings/show', [UserProfileController::class, 'showProfileData'])->name('profile.show');
 Route::post('/profile/profileSettings/update', [UserProfileController::class, 'updateProfileData'])->name('profile.update');

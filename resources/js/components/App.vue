@@ -112,11 +112,12 @@
                         <p class="text-center text-md font-semibold">{{ msgNotification }}</p>
                     </div>
                 </div>
+
             </nav>
         </header>
 
 
-        <div class="flex body p-1 flex-1">
+        <div class="flex body p-1 flex-1 relative">
             <div v-if="$route.name === 'Main' || $route.name === 'Root'" class="flex items-center justify-center w-full">
                 <router-view></router-view>
             </div>
@@ -125,6 +126,19 @@
             </div>
             <div v-else class="flex w-full">
                 <router-view class="w-full"></router-view>
+            </div>
+            <!-- Окно подтверждения -->
+            <div v-if="hasAlertWindow"
+                 class="absolute alertWindow flex justify-center items-center w-full h-full">
+                <div class="bg-white rounded-lg shadow-lg p-6 w-1/3 z-20">
+                    <h2 class="text-lg font-semibold mb-4 underline underline-offset-8 decoration-2 decoration-solid">{{ titleAlert }}</h2>
+                    <p class="mb-4">{{ msgAlert }}</p>
+                    <div class="flex justify-end">
+                        <button class="cancel-button bg-gray-300 text-gray-700 px-4 py-2 rounded mr-2">Отмена</button>
+                        <button class="confirm-button bg-blue-500 text-white px-4 py-2 rounded">Подтвердить</button>
+                    </div>
+                </div>
+                <div class="fixed inset-0 bg-black opacity-50 z-10"></div>
             </div>
         </div>
 
@@ -143,7 +157,7 @@ import { useUserStore } from "@/stores/user.js";
 import { showNotification, notificationState } from "@/notifications.js";
 import { useRouterStore } from "@/stores/routerStore.js";
 import { useRouter } from 'vue-router';  // Import useRouter
-
+import { showAlertWindow, alertWindowState } from "@/alertWindow.js";
 export default {
     name: 'App',
     setup() {
@@ -153,6 +167,7 @@ export default {
         const router = useRouter();
 
         const { msgNotification, hasSuccessNotification, hasErrorNotification } = notificationState;
+        const { hasAlertWindow, titleAlert, msgAlert, resultAlert } = alertWindowState;
 
         onMounted(async () => {
             const lastVisitedRoute = routerStore.lastVisitedRoute;
@@ -195,11 +210,11 @@ export default {
                         showNotification('Восстановление пароля', 1, 3000);
                     } else {
                         // Обработка других ошибок
-                        console.error('Ошибка авторизации:', error);
+                        //console.error('Ошибка авторизации:', error);
                         await router.push(lastVisitedRoute);
                     }
                 } else {
-                    console.error('Ошибка авторизации:', error);
+                    //console.error('Ошибка авторизации:', error);
                     await router.push(lastVisitedRoute);
                 }
             }
@@ -217,6 +232,7 @@ export default {
             }
         };
 
+
         return {
             isAuthenticated: computed(() => userStore.isAuthenticated),
             handleLogout,
@@ -224,6 +240,9 @@ export default {
             msgNotification,
             hasSuccessNotification,
             hasErrorNotification,
+            titleAlert,
+            msgAlert,
+            hasAlertWindow,
         };
     }
 };

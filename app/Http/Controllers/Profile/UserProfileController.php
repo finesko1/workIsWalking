@@ -35,14 +35,22 @@ class UserProfileController extends Controller
                 }
             }
 
-            return response()->json([
-                'message' => 'Вы авторизованы!',
-                'user' => [
-                    'login' => $user->login,
-                    'email' => $user->email,
-                    'image_url' => $imageUrl ?? null
-                ]
-            ], 200);
+            // Если запрос ожидает JSON (например, через Axios)
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'message' => 'Вы авторизованы!',
+                    'user' => [
+                        'login' => $user->login,
+                        'email' => $user->email,
+                        'image_url' => $imageUrl ?? null
+                    ]
+                ], 200);
+            }
+
+            // Если запрос был сделан через URL в браузере
+            return view('welcome', [
+                'message' => 'all successfully',
+            ]);
         } else {
             return response()->json(['error' => 'Ошибка авторизации'], 401);
         }

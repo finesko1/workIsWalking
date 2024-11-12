@@ -1,11 +1,12 @@
 <template>
     <div class='flex justify-center w-full'>
-        <div v-if="pendings.length === 0">
-            <p>Нет заявок</p>
-        </div>
-        <div v-else class="">
+        <div v-if="isDataLoaded">
+            <div v-if="pendings.length === 0">
+                <p>Нет заявок</p>
+            </div>
+            <div v-else class="">
             <ul>
-                <li v-for="(pending, index) in pendings" :key="pending.id" class="flex justify-between items-center">
+                <li v-for="(pending, index) in pendings" :key="pending.id" class="flex justify-between items-center mb-1">
                     <div class="p-2 bg-neutral-400 rounded-xl inline-flex items-center w-full justify-between">
                         <div class="flex items-center mr-3">
                             <img v-if="pending.image_url" :src="pending.image_url" alt="User Image"
@@ -14,17 +15,19 @@
                                  class="w-12 h-12 text-white border border-cyan-900 bg-cyan-800 p-1 rounded-full">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                             </svg>
-                            <div class="ml-2">
+                            <div class="ml-2 p-2 hover:cursor-pointer hover:shadow-inner hover:shadow-neutral-500 hover:rounded-2xl hover:scale-95 transition-transform duration-200 ease-in-out" @click="open_homePage(pending)">
                                 {{ pending.login || (pending.first_name + ' ' + pending.second_name) }}
                             </div>
                         </div>
 
                         <div ref="checkDropdown" class="relative dropdown flex-inline">
                             <div class="flex items-center shadow-lg rounded-xl bg-cyan-600 text-white p-1 mainButton w-48 justify-between">
-                                <div class="text-white">
-                                    <div class="text-blue">Действия</div>
+                                <div class="text-white" @click="toggleDropdown(index)">
+                                    <div class="hover:scale-95 hover:cursor-pointer transition-transform duration-200 ease-in-out">
+                                        Действия
+                                    </div>
                                 </div>
-                                <button type='button' @click="toggleDropdown(index)" class="hover:scale-90 transition-transform">
+                                <button id='dropdownButton' type='button' @click="toggleDropdown(index)" class="hover:scale-90 transition-transform">
                                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
@@ -32,13 +35,13 @@
                             </div>
 
                             <div v-if="pending.showOptions" class="absolute bg-cyan-600 shadow-lg rounded-b-xl p-2 z-10 w-full">
-                                <button @click="addFriend(pending.id)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
+                                <button @click="addFriend(pending.id, index)" class="flex items-center rounded-full text-green-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                     </svg>
                                     Принять в друзья
                                 </button>
-                                <button @click="addFollower(pending.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
+                                <button @click="addFollower(pending.id, index)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
                                     </svg>
@@ -50,7 +53,7 @@
                                     </svg>
                                     Написать сообщение
                                 </button>
-                                <button @click="blockUser(pending.id)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
+                                <button @click="blockUser(pending.id, index)" class="flex items-center rounded-full text-red-400 p-2 hover:bg-cyan-700 hover:scale-95 transition-transform duration-300 ease-in-out w-full">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                     </svg>
@@ -62,16 +65,30 @@
                 </li>
             </ul>
         </div>
+        </div>
+        <div v-else>
+            <button type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-cyan-700 hover:bg-cyan-600 transition ease-in-out duration-150 cursor-not-allowed" disabled="">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Загрузка...
+            </button>
+        </div>
     </div>
 </template>
 
 <script>
 import {onBeforeUnmount, onMounted, ref} from "vue";
+import {showAlertWindow} from "@/alertWindow.js";
+import {useRouter} from "vue-router";
 
 export default {
     name: 'Pendings',
     setup() {
         const pendings = ref([]);
+        const isDataLoaded = ref(false);
+        const router = useRouter();
 
         onMounted(async () => {
             await loadPendings();
@@ -91,6 +108,8 @@ export default {
                 pendings.value.forEach(user => {
                     user.showOptions = false;
                 });
+                await new Promise(resolve => setTimeout(resolve, 200));
+                isDataLoaded.value = true;
             } catch (e) {
                 if (e.response) {
                     console.log(e.response.error);
@@ -101,34 +120,50 @@ export default {
         }
 
 
-        const addFriend = async (friendId) => {
+        const addFriend = async (friendId, index) => {
             try {
-                await axios.post('/friendship/friends/' + friendId);
-                await loadPendings();
+                let userName = pendings.value[index].login || pendings.value[index].first_name + ' ' + pendings.value[index].second_name;
+                let resultAlert = await showAlertWindow("Подтверждение", "Добавить в друзья пользователя " + userName + '?');
+                if (resultAlert === true) {
+                    await axios.post('/friendship/friends/' + friendId);
+                    await loadPendings();
+                }
                 hideMainButton();
             } catch(e) {
                 console.log(e.message);
             }
         }
 
-        const addFollower = async (friendId) => {
+        const addFollower = async (friendId, index) => {
             try {
-                await axios.delete('/friendship/friends/' + friendId);
-                await loadPendings();
+                let userName = pendings.value[index].login || pendings.value[index].first_name + ' ' + pendings.value[index].second_name;
+                let resultAlert = await showAlertWindow("Подтверждение", "Отклонить заявку пользователя " + userName + '?');
+                if (resultAlert === true) {
+                    await axios.delete('/friendship/friends/' + friendId);
+                    await loadPendings();
+                }
                 hideMainButton();
             } catch(e) {
                 console.log(e.message);
             }
         }
 
-        const blockUser = async (userId) => {
+        const blockUser = async (userId, index) => {
             try {
-                await axios.post('/friendship/friends/block/' + userId);
-                await loadPendings();
+                let userName = pendings.value[index].login || pendings.value[index].first_name + ' ' + pendings.value[index].second_name;
+                let resultAlert = await showAlertWindow("Подтверждение", "Заблокировать пользователя " + userName + '?');
+                if (resultAlert === true) {
+                    await axios.post('/friendship/friends/block/' + userId);
+                    await loadPendings();
+                }
                 hideMainButton();
             } catch (e) {
                 console.log(e.message);
             }
+        }
+
+        const open_homePage = async (userId) => {
+            router.push('/profile/' + userId.id);
         }
 
         const toggleDropdown = (index) => {
@@ -181,7 +216,9 @@ export default {
             addFollower,
             addFriend,
             toggleDropdown,
-            blockUser
+            blockUser,
+            open_homePage,
+            isDataLoaded
         }
     }
 }

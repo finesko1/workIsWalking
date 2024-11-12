@@ -1,9 +1,9 @@
 <template>
     <div class="flex flex-col items-center justify-start m-2">
         <div class="flex flex-col shadow-lg bg-neutral-300 p-6 rounded-lg w-full max-w-[500px] min-h-full">
-            <div class="flex justify-center p-4 text-lg font-semibold">
-                {{ headForm }}
-            </div>
+<!--            <div class="flex justify-center p-4 text-lg font-semibold">-->
+<!--                {{ headForm }}-->
+<!--            </div>-->
             <div>
                 <ul class="flex items-center justify-center gap-2 p-2 text-white">
                     <!-- Друзья -->
@@ -70,23 +70,23 @@ export default {
             { name: 'Заблокированные', path: '/friendship/blocked' }
         ];
 
-        const updateHeadForm = () => {
-            if (route.path === '/friendship/friends') {
-                headForm.value = 'Список друзей';;
-            } else if (route.path === '/friendship/search') {
-                headForm.value = 'Поиск друзей';
-            } else if (route.path === '/friendship/pendings') {
-                headForm.value = 'Заявки';
-            } else if (route.path === '/friendship/followers') {
-                headForm.value = 'Список подписчиков';
-            } else if (route.path === '/friendship/followings') {
-                headForm.value = 'Список отправленных заявок';
-            } else if (route.path === '/friendship/blocked') {
-                headForm.value = 'Список заблокированных пользователей';
-            } else {
-                headForm.value = 'Люди';
-            }
-        }
+        //const updateHeadForm = () => {
+        //    if (route.path === '/friendship/friends') {
+        //        headForm.value = 'Список друзей';
+        //    } else if (route.path === '/friendship/search') {
+        //        headForm.value = 'Поиск друзей';
+        //    } else if (route.path === '/friendship/pendings') {
+        //        headForm.value = 'Заявки';
+        //    } else if (route.path === '/friendship/followers') {
+        //        headForm.value = 'Список подписчиков';
+        //    } else if (route.path === '/friendship/followings') {
+        //        headForm.value = 'Список отправленных заявок';
+        //    } else if (route.path === '/friendship/blocked') {
+        //        headForm.value = 'Список заблокированных пользователей';
+        //    } else {
+        //        headForm.value = 'Люди';
+        //    }
+        //}
 
         onMounted(() => {
             document.addEventListener('click', handleDropdownFollower);
@@ -97,7 +97,12 @@ export default {
         });
 
         watch(() => route.path, () => {
-            updateHeadForm();
+            //updateHeadForm();
+            const matchedLink = links.find(link => link.path === route.path);
+            if (matchedLink) {
+                currentLink.value = matchedLink.name;
+                currentLinkPath.value = matchedLink.path;
+            }
         });
 
         const navigateTo = (path) => {

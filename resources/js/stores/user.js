@@ -55,7 +55,7 @@ export const useUserStore = defineStore('user', () => {
         } catch (e) {
             localStorage.setItem('isAuthenticated', 'true');
             isAuthenticated.value = true;
-            console.error('Ошибка при выходе: ', e);
+            //console.error('Ошибка при выходе: ', e);
             showNotification('Ошибка выхода', 0)
             throw(e);
         }

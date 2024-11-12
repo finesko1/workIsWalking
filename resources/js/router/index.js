@@ -12,6 +12,7 @@ import ForgotPassword from '../components/auth/forgotPassword/ForgotPassword.vue
 import ResetPassword from "../components/auth/forgotPassword/ResetPassword.vue";
 
 import Profile from "../components/profile/Profile.vue";
+import FriendshipProfile from "../components/profile/FriendshipProfile.vue";
 import ProfileSettings from "../components/profile/ProfileSettings.vue";
 import PersonalDataSettings from "../components/profile/PersonalDataSettings.vue";
 
@@ -25,7 +26,7 @@ import Followings from "../components/friends/Followings.vue";
 import Pendings from "../components/friends/Pendings.vue";
 import Blocked from "../components/friends/Blocked.vue";
 
-import {useUserStore} from "@/stores/user.js";
+import { useUserStore } from "@/stores/user.js";
 import { useRouterStore } from "@/stores/routerStore.js";
 
 const routes = [
@@ -114,6 +115,20 @@ const routes = [
                 component: PersonalDataSettings
             },
         ]
+    },
+    {
+        path: '/profile/:userId',
+        name: 'FriendshipProfile',
+        component: FriendshipProfile,
+        props: true,
+        beforeEnter: (to, from, next) => {
+            const userStore = useUserStore();
+            if (userStore.isAuthenticated) {
+                next();
+            } else {
+                next('/');
+            }
+        },
     },
     {
         path: '/groups',
