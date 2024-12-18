@@ -16,7 +16,7 @@
                     id="image_url"
                     @change="onFileChange"
                     class="hidden"
-                    ref="fileInput"
+                    ref="fileInputRef"
                 />
             </div>
         </div>
@@ -29,7 +29,7 @@
                 <input
                     type="text"
                     id="login"
-                    ref="login"
+                    ref="loginRef"
                     v-model="profileData.login"
                     :disabled="!isEditable.login"
                     class="p-2 mt-1 block px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
@@ -48,7 +48,6 @@
         </div>
         <span v-if="errors.login" class="ml-16 text-red-600 text-sm">{{ errors.login[0] }}</span>
 
-
         <!-- Поле для почты -->
         <div class="flex items-center relative group w-full">
             <label for="email" class="text-right pr-4">Почта</label>
@@ -56,7 +55,7 @@
                 <input
                     type="email"
                     id="email"
-                    ref="email"
+                    ref="emailRef"
                     v-model="profileData.email"
                     :disabled="!isEditable.email"
                     class="p-2 mt-1 block px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm hover:shadow-md"
@@ -121,95 +120,107 @@
 </template>
 
 <script>
-import router from '@/router'
-import {showNotification} from "@/notifications.js";
+import { ref, reactive, onMounted, nextTick } from 'vue';
+import axios from 'axios';
+import router from '@/router';
+import { showNotification } from '@/notifications.js';
 
 export default {
     name: 'ProfileSettings',
-    data() {
-        return {
-            profileData: {
-                image_url: null,
-                image_file: null,
-                login: '',
-                email: '',
-                password: '',
-                password_confirmation: ''
-            },
-            isDataLoaded: false,
-            isPasswordChanging: false,
-            isEditable: { login: false, email: false },
-            errors: {}
-        }
-    },
-    mounted() {
-        this.fetchProfileData();
-    },
-    methods: {
-        async fetchProfileData() {
+    setup() {
+        const profileData = reactive({
+            image_url: null,
+            image_file: null,
+            login: '',
+            email: '',
+            password: '',
+            password_confirmation: ''
+        });
+
+        const isDataLoaded = ref(false);
+        const isPasswordChanging = ref(false);
+        const isEditable = reactive({ login: false, email: false });
+        const errors = reactive({});
+
+        const loginRef = ref(null);
+        const emailRef = ref(null);
+        const fileInputRef = ref(null);
+
+        const inputRefs = {
+            login: loginRef,
+            email: emailRef
+        };
+
+        onMounted(() => {
+            fetchProfileData();
+        });
+
+        async function fetchProfileData() {
             try {
                 const response = await axios.get('/profile/profileSettings/show');
                 await new Promise(resolve => setTimeout(resolve, 200));
-                this.profileData = response.data.user;
-                this.isDataLoaded = true;
+                Object.assign(profileData, response.data.user);
+                isDataLoaded.value = true;
             } catch (e) {
+                console.log('Ошибка здесь')
                 showNotification('Ошибка загрузки данных профиля', 0, 3000);
             }
-        },
-        toggleEdit(fieldName) {
-            if (this.isEditable.hasOwnProperty(fieldName)) {
-                this.isEditable[fieldName] = !this.isEditable[fieldName];
+        }
 
-                if (this.isEditable[fieldName]) {
-                    this.$nextTick(() => {
-                        const inputElement = this.$refs[fieldName];
+        function toggleEdit(fieldName) {
+            if (Object.prototype.hasOwnProperty.call(isEditable, fieldName)) {
+                isEditable[fieldName] = !isEditable[fieldName];
+
+                if (isEditable[fieldName]) {
+                    nextTick(() => {
+                        const inputElement = inputRefs[fieldName].value;
                         if (inputElement) {
-                            this.setCursorToEnd(inputElement);
+                            setCursorToEnd(inputElement);
                         }
                     });
                 }
             }
-        },
-        setCursorToEnd(inputElement) {
+        }
+
+        function setCursorToEnd(inputElement) {
             if (inputElement) {
                 inputElement.focus();
-                // Устанавливаем курсор в конец только для поддерживаемых полей
                 if (inputElement.type === 'text' || inputElement.type === 'textarea') {
                     const value = inputElement.value;
                     inputElement.setSelectionRange(value.length, value.length);
                 }
-            } else {
-                //
             }
-        },
-        selectFile() {
-            if (this.$refs.fileInput) {
-                this.$refs.fileInput.click(); // Вызываем диалог выбора файла
+        }
+
+        function selectFile() {
+            if (fileInputRef.value) {
+                fileInputRef.value.click();
             } else {
-                console.error('файл не существует');
+                console.error('Файл не существует');
             }
-        },
-        onFileChange(event) {
+        }
+
+        function onFileChange(event) {
             const file = event.target.files[0];
             if (file && file.type.startsWith('image/')) {
-                // Создаем временный URL для изображения на странице
-                this.profileData.image_file = file;
-                this.profileData.image_url = URL.createObjectURL(file);
+                profileData.image_file = file;
+                profileData.image_url = URL.createObjectURL(file);
             } else {
                 showNotification('Пожалуйста, загрузите изображение.', 0, 3000);
-                this.profileData.image_file = null; // Сбрасываем значение, если файл не подходит
-                this.profileData.image_url = null;
+                profileData.image_file = null;
+                profileData.image_url = null;
             }
-        },
-        async saveChanges() {
-            try {
-                this.errors = {};
+        }
 
-                // Создаем новый объект FormData
+
+        async function saveChanges() {
+            try {
+                // Сброс ошибок
+                Object.keys(errors).forEach(key => delete errors[key]);
+
                 const formData = new FormData();
-                // Добавляем все поля из profileData в FormData
-                for (const key in this.profileData) {
-                    formData.append(key, this.profileData[key]);
+                for (const key in profileData) {
+                    formData.append(key, profileData[key]);
                 }
                 const response = await axios.post('/profile/profileSettings/update', formData, {
                     headers: {
@@ -217,20 +228,35 @@ export default {
                     }
                 });
                 showNotification(response.data.message, 1, 3000);
-                await this.fetchProfileData();
+                await fetchProfileData();
                 window.location.reload();
             } catch (e) {
-                // Проверяем, есть ли ответ от сервера
                 if (e.response) {
                     showNotification(e.response.data.error, 0, 3000);
                     if (e.response.status === 422) {
-                        this.errors = e.response.data.errors;
+                        Object.assign(errors, e.response.data.errors);
                     }
                 } else {
                     showNotification(e.message, 0, 3000);
                 }
             }
         }
+
+
+        return {
+            profileData,
+            isDataLoaded,
+            isPasswordChanging,
+            isEditable,
+            errors,
+            selectFile,
+            onFileChange,
+            toggleEdit,
+            saveChanges,
+            loginRef,
+            emailRef,
+            fileInputRef,
+        };
     }
-}
+};
 </script>

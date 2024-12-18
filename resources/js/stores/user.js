@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { ref } from 'vue';
 import router from "@/router/index.js";
 import { showNotification, notificationState } from "@/notifications.js";
+import CryptoJS from "crypto-js";
 
 export const useUserStore = defineStore('user', () => {
     const user = ref(null);
@@ -12,6 +13,7 @@ export const useUserStore = defineStore('user', () => {
         try {
             const response = await axios.post('/login', loginData);
             user.value = response.data.user;
+            const encryptedPassword = CryptoJS.AES.encrypt(loginData.password, 'your-secret-key').toString();
             localStorage.setItem('isAuthenticated', 'true');
             isAuthenticated.value = true;
             showNotification(response.data.message, 1, 2000);
@@ -48,6 +50,7 @@ export const useUserStore = defineStore('user', () => {
         try {
             await axios.post('/logout');
             user.value = null;
+            localStorage.removeItem('encryptedPassword');
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
             showNotification('Выход успешно выполнен!');
@@ -70,7 +73,7 @@ export const useUserStore = defineStore('user', () => {
             user.value = null;
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
-            throw(e);
+            console.log("isAuthenticated: ", isAuthenticated.value)
         }
     };
 

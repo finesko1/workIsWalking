@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class CheckAuthController extends Controller
 {
     public function checkAuth(Request $request) {
-        $user = Auth::user();
+        $user = auth()->user();
 
         if ($user) {
             $userId = $user->id;

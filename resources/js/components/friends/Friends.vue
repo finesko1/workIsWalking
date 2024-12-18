@@ -15,7 +15,7 @@
                                      class="w-12 h-12 text-white border border-cyan-900 bg-cyan-800 p-1 rounded-full">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                                 </svg>
-                                <div class="ml-2">
+                                <div class="ml-2 p-2 hover:cursor-pointer hover:shadow-inner hover:shadow-neutral-500 hover:rounded-2xl hover:scale-95 transition-transform duration-200 ease-in-out" @click="open_homePage(friend)">
                                     {{ friend.login || (friend.first_name + ' ' + friend.second_name) }}
                                 </div>
                             </div>
@@ -75,12 +75,14 @@
 <script>
 import {onBeforeUnmount, onMounted, ref} from "vue";
 import { showAlertWindow  } from "@/alertWindow.js";
+import {useRouter} from "vue-router";
 
 export default {
     name: 'Friends',
     setup() {
         const friends = ref([]);
         const isDataLoaded = ref(false);
+        const router = useRouter();
 
         onMounted(async () => {
             await loadFriendships();
@@ -139,6 +141,9 @@ export default {
             }
         }
 
+        const open_homePage = async (userId) => {
+            router.push('/profile/' + userId.id);
+        }
 
         const toggleDropdown = (index) => {
             let activeButton = document.querySelector('.mainButton.rounded-t-xl');
@@ -189,6 +194,7 @@ export default {
             addFollower,
             blockUser,
             toggleDropdown,
+            open_homePage,
             isDataLoaded
         }
     }

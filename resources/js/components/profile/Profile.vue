@@ -25,12 +25,6 @@
                     <router-view></router-view>
                 </div>
             </div>
-
-            <footer class="text-center mt-6 text-sm text-gray-500">
-               <div>
-
-               </div>
-            </footer>
         </div>
     </div>
 </template>
@@ -38,6 +32,7 @@
 <script>
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import router from "@/router/index.js";
 
 export default {
     name: 'Profile',

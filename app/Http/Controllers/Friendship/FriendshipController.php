@@ -425,6 +425,53 @@ class FriendshipController extends Controller
         }
     }
 
+    // подсчет друзей, подписчиков, подписок, заявок, заблокированных
+    public function friendshipCount() {
+        try {
+            $userId = auth()->id();
+            // ['pending', 'accepted', 'blockIt', 'blockMe', 'blocked', 'following', 'follower']
+            $countFriends = Friendship::
+                where('user_id', $userId)
+                ->where('status', 'accepted')
+                ->count();
+            $countPendings = Friendship::
+                where('user_id', $userId)
+                ->where('status', 'pending')
+                ->count();
+            $countFollowers = Friendship::
+                where('user_id', $userId)
+                ->where('status', 'follower')
+                ->count();
+            $countFollowings = Friendship::
+                where('user_id', $userId)
+                ->where('status', 'following')
+                ->count();
+            $countBlocked = Friendship::
+                where('user_id', $userId)
+                ->where(function ($query) {
+                    $query->where('status', 'blockIt')
+                        ->orWhere('status', 'blocked');
+                })
+                ->count();
+
+        } catch (\Exception $e) {
+
+        }
+
+        if(request()->expectsJson()) {
+            return response()->json([
+                'message' => "Get count friendships",
+                'counts' => [
+                    'countFriends' => $countFriends ?? 0,
+                    'countPendings' => $countPendings ?? 0,
+                    'countFollowers' => $countFollowers ?? 0,
+                    'countFollowings' => $countFollowings ?? 0,
+                    'countBlocked' => $countBlocked ?? 0,
+                ]
+            ]);
+        }
+        return view('welcome', ['message' => 'Get count friendships']);
+    }
 
     /**
      * @param $user

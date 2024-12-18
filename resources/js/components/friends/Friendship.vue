@@ -11,11 +11,13 @@
                         <router-link to='/friendship/friends'>
                             Друзья
                         </router-link>
+                        ({{ countFriendships.countFriends  }})
                     </li>
                     <li class="relative p-2 text-black text-lg no-underline hover:underline underline-offset-4 decoration-dashed rounded-xl">
-                        <div class="flex items-center justify-center gap-1 w-40">
+                        <div class="flex items-center justify-center gap-1 w-52">
                             <label @click="navigateTo(currentLinkPath)" class="hover:cursor-pointer">
                                 {{ currentLink }}
+                                ({{ countFriendships[links.find(link => link.name === currentLink)?.countName] ?? 0 }})
                             </label>
                             <button id="dropdownStateButton" @click.stop="toggleDropdownFollower" class="ml-1 focus:outline-none">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -29,9 +31,10 @@
                                 v-for="link in links"
                                 :key="link.name"
                                 @click="selectLink(link)"
-                                class="block px-4 py-2 hover:bg-gray-500 rounded cursor-pointer"
+                                class="block px-4 py-2 hover:bg-gray-500 rounded cursor-pointer w-full"
                             >
                                 {{ link.name }}
+                                ({{ countFriendships[link.countName]  }})
                             </div>
                         </div>
                     </li>
@@ -62,12 +65,13 @@ export default {
         const followersMenu = ref(false);
         const route = useRoute();
         const router = useRouter();
+        const countFriendships = ref({});
 
         const links = [
-            { name: 'Подписчики', path: '/friendship/followers' },
-            { name: 'Заявки', path: '/friendship/pendings' },
-            { name: 'Подписки', path: '/friendship/followings' },
-            { name: 'Заблокированные', path: '/friendship/blocked' }
+            { name: 'Подписчики', path: '/friendship/followers', countName: 'countFollowers' },
+            { name: 'Заявки', path: '/friendship/pendings', countName: 'countPendings' },
+            { name: 'Подписки', path: '/friendship/followings', countName: 'countFollowings' },
+            { name: 'Заблокированные', path: '/friendship/blocked', countName: 'countBlocked' }
         ];
 
         //const updateHeadForm = () => {
@@ -90,6 +94,7 @@ export default {
 
         onMounted(() => {
             document.addEventListener('click', handleDropdownFollower);
+            loadCountFriendships();
         });
 
         onBeforeUnmount(() => {
@@ -98,12 +103,22 @@ export default {
 
         watch(() => route.path, () => {
             //updateHeadForm();
+            loadCountFriendships();
             const matchedLink = links.find(link => link.path === route.path);
             if (matchedLink) {
                 currentLink.value = matchedLink.name;
                 currentLinkPath.value = matchedLink.path;
             }
         });
+
+        const loadCountFriendships = async() => {
+            try {
+                let response = await axios.get('/friendship/count');
+                countFriendships.value = response.data.counts;
+            } catch (e) {
+                // заглушка
+            }
+        }
 
         const navigateTo = (path) => {
             router.push(path);
@@ -142,6 +157,7 @@ export default {
             links,
             selectLink,
             navigateTo,
+            countFriendships,
             toggleDropdownFollower
         }
     }

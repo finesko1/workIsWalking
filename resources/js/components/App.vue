@@ -127,6 +127,7 @@
             <div v-else class="flex w-full">
                 <router-view class="w-full"></router-view>
             </div>
+
             <!-- Окно подтверждения -->
             <div v-if="hasAlertWindow"
                  class="absolute alertWindow flex justify-center items-center w-full h-full">
@@ -141,7 +142,6 @@
                 <div class="fixed inset-0 bg-black opacity-50 z-10"></div>
             </div>
         </div>
-
 
         <footer class="rounded-b-lg footer border-t-2 border-cyan-950 text-lg">
             <router-link to="/">
@@ -182,40 +182,29 @@ export default {
                 await userStore.checkAuth();
                 user.value = userStore.user;
 
-                const routeExists = router.getRoutes().some(route => route.path === lastVisitedRoute);
-                if (routeExists) {
-                    const pathSegments = lastVisitedRoute.split('/').filter(segment => segment);
-                    const mainRoute = `/${pathSegments[0]}`;
-                    let currentPath = mainRoute;
+                const currentRoutePath = router.currentRoute.value.path;
 
-                    await router.push(mainRoute);
+                // Обновленное условие перенаправления
+                const authRoutes = ['/', '/login', '/signin', '/forgot-password', '/reset-password'];
+                const shouldRedirect = authRoutes.includes(currentRoutePath) && lastVisitedRoute;
 
-                    for (let i = 1; i < pathSegments.length; i++) {
-                        const nestedRoute = pathSegments[i];
-                        currentPath = `${currentPath}/${nestedRoute}`;
-                        const nestedRouteExists = router.getRoutes().some(route => route.path === currentPath);
+                if (shouldRedirect) {
+                    const routeExists = router.getRoutes().some(route => route.path === lastVisitedRoute);
 
-                        if (nestedRouteExists) {
-                            await router.push(currentPath);
-                        } else {
-                            break;
-                        }
+                    if (routeExists) {
+                        await router.push(lastVisitedRoute);
                     }
-                } else {
-                   // await router.push('/main');
                 }
             } catch (error) {
+                // Обработка ошибок остается без изменений
                 if (error.response) {
                     if (isResetPasswordRoute) {
                         showNotification('Восстановление пароля', 1, 3000);
                     } else {
-                        // Обработка других ошибок
-                        //console.error('Ошибка авторизации:', error);
-                        await router.push(lastVisitedRoute);
+                        await router.push(currentRoutePath);
                     }
                 } else {
-                    //console.error('Ошибка авторизации:', error);
-                    await router.push(lastVisitedRoute);
+                    await router.push(currentRoutePath);
                 }
             }
         });

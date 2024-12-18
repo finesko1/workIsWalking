@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
@@ -31,13 +32,13 @@ Route::get('/main', function() {
 // Работа с аутентификацией
 // Вход пользователя
 Route::get('/login', function() {
-   return redirect('/');
+    return view('welcome');
 });
 Route::post('/login', [LoginController::class, 'loginStore'])->name('login');
 
 // Регистрация пользователя
 Route::get('/signin', function() {
-    return redirect('/');
+    return view('welcome');
 });
 Route::post('/signin', [RegisterController::class, 'signinStore'])->name('signin');
 
@@ -54,32 +55,40 @@ Route::post('/logout', [LogoutController::class, 'destroy'])->name('logout');
 
 // Контакты сайта
 Route::get('/contacts', function() {
-    return redirect('/');
+    return view('welcome');
 });
 
 
 // Профиль авторизованного пользователя
 Route::get('/profile', function() {
-    return redirect('/');
+    return view('welcome');
 });
+// Настройки профиля
+Route::get('/profile/profileSettings', function() {
+    return view('welcome');
+});
+Route::get('/profile/profileSettings/show', [UserProfileController::class, 'showProfileData'])->name('profile.show');
+Route::post('/profile/profileSettings/update', [UserProfileController::class, 'updateProfileData'])->name('profile.update');
+
 // Профиль другого пользователя
 Route::get('/profile/{id}', [FriendshipProfileController::class, 'show'])->name('friendshipProfile.show');
 
-// Настройки профиля
-Route::get('/profile/profileSettings/show', [UserProfileController::class, 'showProfileData'])->name('profile.show');
-Route::post('/profile/profileSettings/update', [UserProfileController::class, 'updateProfileData'])->name('profile.update');
 
 // Личная информация
 Route::get('/profile/personalData/show', [UserProfileController::class, 'showPersonalData'])->name('personalData.show');
 Route::post('/profile/personalData/update', [UserProfileController::class, 'updatePersonalData'])->name('personalData.update');
 
 // Управление друзьями
+Route::get('/friendship', function() {
+    return view('welcome');
+});
 Route::get('/friendship/friends', [FriendshipController::class, 'showFriends'])->name('friends.show');
 Route::get('/friendship/search', [FriendshipController::class, 'showAll'])->name('all.show');
 Route::get('/friendship/pendings', [FriendshipController::class, 'showPendings'])->name('pendings.show');
 Route::get('/friendship/followers', [FriendshipController::class, 'showFollowers'])->name('followers.show');
 Route::get('/friendship/followings', [FriendshipController::class, 'showFollowings'])->name('followings.show');
 Route::get('/friendship/blocked', [FriendshipController::class, 'showBlocked'])->name('blocked.show');
+Route::get('/friendship/count', [FriendshipController::class, 'friendshipCount'])->name('friendshipCount.show');
 
 // отправить заявку
 Route::post('/friendship/friends/following/{id}', [FriendshipController::class, 'addFollowing'])->name('following.add');
@@ -94,7 +103,25 @@ Route::post('/friendship/friends/block/{id}', [FriendshipController::class, 'blo
 // разблокировать пользователя
 Route::delete('/friendship/friends/block/{id}', [FriendshipController::class, 'unblockIt'])->name('block.delete');
 
+// Работа с группами
+Route::get('/groups', function() {
+    return view('welcome');
+});
+Route::get('/groups/edit', function() {
+    return view('welcome');
+});
+
+
+
+
+// Тестирование
+Route::get('/test-session', function () {
+    $value = session('test_key', 'default');
+    session(['test_key' => 'value']);
+    return $value;
+});
 
 Route::get('/{any}', function () {
     return view('welcome');
 })->where('any', '.*');
+

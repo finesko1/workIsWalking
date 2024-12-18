@@ -26,8 +26,18 @@ import Followings from "../components/friends/Followings.vue";
 import Pendings from "../components/friends/Pendings.vue";
 import Blocked from "../components/friends/Blocked.vue";
 
-import { useUserStore } from "@/stores/user.js";
-import { useRouterStore } from "@/stores/routerStore.js";
+import { useUserStore } from "../stores/user.js";
+import { useRouterStore } from "../stores/routerStore.js";
+
+import GroupsView from "../components/messages/GroupsView/GroupsView.vue";
+import GroupsCreate from "../components/messages/GroupsCreate.vue";
+import GroupsEdit from "../components/messages/GroupsEdit/GroupsEdit.vue";
+import AddTask from "../components/messages/GroupsEdit/AddTask.vue";
+import AddSection from "../components/messages/GroupsEdit/AddSection.vue";
+import AddEvent from "../components/messages/GroupsEdit/AddEvent.vue";
+import GroupMembers from "../components/messages/GroupsView/GroupMembersInSection.vue"
+import GroupView from "../components/messages/GroupsView/GroupView.vue";
+
 
 const routes = [
     {
@@ -44,27 +54,47 @@ const routes = [
         path: '/login',
         name: 'Login',
         component: Login,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
             const userStore = useUserStore();
-            if (userStore.isAuthenticated) {
-                next('/');
-            } else {
-                next();
+            try {
+                await userStore.checkAuth();
+                if (userStore.isAuthenticated) {
+                    next('/');
+                } else {
+                    next();
+                }
+            } catch (error) {
+                //console.error("Ошибка при проверке аутентификации:", error.message);
+                if (error.response.status === 401) {
+                    next();
+                } else {
+                    next('/');
+                }
             }
-        }
+        },
     },
     {
         path: '/signin',
         name: 'Signin',
         component: Signin,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
             const userStore = useUserStore();
-            if (userStore.isAuthenticated) {
-                next('/');
-            } else {
-                next();
+            try {
+                await userStore.checkAuth();
+                if (userStore.isAuthenticated) {
+                    next('/');
+                } else {
+                    next();
+                }
+            } catch (error) {
+                //console.error("Ошибка при проверке аутентификации:", error.message);
+                if (error.response.status === 401) {
+                    next();
+                } else {
+                    next('/');
+                }
             }
-        }
+        },
     },
     {
         path: '/forgot-password',
@@ -94,12 +124,22 @@ const routes = [
         path: '/profile',
         name: 'Profile',
         component: Profile,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
             const userStore = useUserStore();
-            if (userStore.isAuthenticated) {
-                next();
-            } else {
-                next('/');
+            try {
+                await userStore.checkAuth();
+                if (userStore.isAuthenticated) {
+                    next();
+                } else {
+                    next('/');
+                }
+            } catch (error) {
+                //console.error("Ошибка при проверке аутентификации:", error.message);
+                if (error.response.status === 401) {
+                    next('/');
+                } else {
+                    next();
+                }
             }
         },
         redirect: '/profile/profileSettings',
@@ -121,12 +161,22 @@ const routes = [
         name: 'FriendshipProfile',
         component: FriendshipProfile,
         props: true,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
             const userStore = useUserStore();
-            if (userStore.isAuthenticated) {
-                next();
-            } else {
-                next('/');
+            try {
+                await userStore.checkAuth();
+                if (userStore.isAuthenticated) {
+                    next();
+                } else {
+                    next('/');
+                }
+            } catch (error) {
+                //console.error("Ошибка при проверке аутентификации:", error.message);
+                if (error.response.status === 401) {
+                    next('/');
+                } else {
+                    next();
+                }
             }
         },
     },
@@ -134,25 +184,89 @@ const routes = [
         path: '/groups',
         name: 'Groups',
         component: Groups,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
             const userStore = useUserStore();
-            if (userStore.isAuthenticated) {
-                next();
-            } else {
-                next('/');
+            try {
+                await userStore.checkAuth();
+                if (userStore.isAuthenticated) {
+                    next();
+                } else {
+                    next('/');
+                }
+            } catch (error) {
+                //console.error("Ошибка при проверке аутентификации:", error.message);
+                if (error.response.status === 401) {
+                    next('/');
+                } else {
+                    next();
+                }
             }
         },
+        children: [
+            {
+                path: '/groups/all',
+                name: GroupsView,
+                component: GroupsView
+            },
+            {
+                path: '/groups/myGroup',
+                name: GroupView,
+                component: GroupView
+            },
+            {
+                path: '/groups/create',
+                name: GroupsCreate,
+                component: GroupsCreate,
+            },
+            {
+                path: '/groups/edit',
+                name: GroupsEdit,
+                component: GroupsEdit,
+                children: [
+                    {
+                        path: '/groups/edit/addTaskInSections',
+                        name:   AddTask,
+                        component: AddTask
+                    },
+                    {
+                        path: '/groups/edit/addSectionInSections',
+                        name:   AddSection,
+                        component: AddSection
+                    },
+                    {
+                        path: '/groups/edit/addEventInSections',
+                        name:   AddEvent,
+                        component: AddEvent
+                    }
+                ]
+            },
+            {
+                path: '/groups/groupMembers',
+                name: GroupMembers,
+                component: GroupMembers,
+            }
+        ]
     },
     {
         path: '/friendship',
         name: 'Friendship',
         component: Friendship,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
             const userStore = useUserStore();
-            if (userStore.isAuthenticated) {
-                next();
-            } else {
-                next('/');
+            try {
+                await userStore.checkAuth();
+                if (userStore.isAuthenticated) {
+                    next();
+                } else {
+                    next('/');
+                }
+            } catch (error) {
+                //console.error("Ошибка при проверке аутентификации:", error.message);
+                if (error.response.status === 401) {
+                    next('/');
+                } else {
+                    next();
+                }
             }
         },
         // временно. добавить навигационное меню

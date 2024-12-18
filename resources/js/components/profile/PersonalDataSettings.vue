@@ -165,7 +165,8 @@ export default {
             try {
                 const response = await axios.get('/profile/personalData/show');
                 await new Promise(resolve => setTimeout(resolve, 200));
-                this.personalData = response.data.personalData;
+                Object.assign(this.personalData, response.data.personalData);
+                // this.personalData = response.data.personalData;
                 if(this.personalData.phone_number) {
                     this.personalData.phone_number = this.formatPhoneNumberFromString(this.personalData.phone_number);
                 }

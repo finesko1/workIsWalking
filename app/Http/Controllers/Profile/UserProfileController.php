@@ -6,15 +6,20 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use App\Models\User\PersonalData;
 class UserProfileController extends Controller
 {
     public function showProfileData() {
-        $user = Auth::user();
+        try {
+            $user = auth()->user();
 
-        if ($user) {
+            if (!$user) {
+                return response()->json(['error' => 'Пользователь не авторизован'], 401);
+            }
+
             $userId = $user->id;
             $userFolder = "users/{$userId}";
 
@@ -23,6 +28,7 @@ class UserProfileController extends Controller
 
             // Проверяем существование файлов с различными расширениями
             $extensions = ['jpg', 'jpeg', 'png']; // Массив возможных расширений
+            $imageUrl = null;
 
             foreach ($extensions as $extension) {
                 $imagePath = "{$userFolder}/{$imageName}.{$extension}"; // Формируем полный путь к изображению
@@ -42,17 +48,25 @@ class UserProfileController extends Controller
                     'user' => [
                         'login' => $user->login,
                         'email' => $user->email,
-                        'image_url' => $imageUrl ?? null
+                        'image_url' => $imageUrl
                     ]
                 ], 200);
             }
 
             // Если запрос был сделан через URL в браузере
             return view('welcome', [
-                'message' => 'all successfully',
+                'message' => 'Вы авторизованы!',
+                'user' => [
+                    'login' => $user->login,
+                    'email' => $user->email,
+                    'image_url' => $imageUrl
+                ]
             ]);
-        } else {
-            return response()->json(['error' => 'Ошибка авторизации'], 401);
+        } catch(\Exception $e) {
+            if (request()->expectsJson()) {
+                return response()->json(['error' => 'Ошибка авторизации'], 401);
+            }
+            return redirect()->route('login')->withErrors(['error' => 'Ошибка авторизации']);
         }
     }
 
