@@ -6,7 +6,7 @@
             </div>
             <div v-else class="">
                 <ul>
-                    <li v-for="(block, index) in blocked" :key="blocked.id" class="mb-1">
+                    <li v-for="(block, index) in blocked" :key="block.id" class="mb-1">
                         <div class="p-2 bg-neutral-400 rounded-xl inline-flex items-center w-full justify-between">
                             <div class="flex items-center mr-3">
                                 <img v-if="block.image_url" :src="block.image_url" alt="User Image"

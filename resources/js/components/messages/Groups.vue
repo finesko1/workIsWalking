@@ -32,10 +32,6 @@
 
         <!-- Модальное окно создания группы -->
         <GroupsCreate v-if="isCreateGroupVisible" @close="closeCreateGroup" />
-
-<!--        Временный переход-->
-        <router-link to='/groups/edit'>Изменить групппу</router-link>
-        <router-view @close='closeCreateGroup'></router-view>
     </div>
     <div v-else>
         <GroupView @close="isShowGroups = true"></GroupView>
@@ -49,6 +45,7 @@ import { useRoute, useRouter } from "vue-router";
 import GroupsView from "@/components/messages/GroupsView/GroupsView.vue";
 import GroupsCreate from "@/components/messages/GroupsCreate.vue";
 import GroupView from "@/components/messages/GroupsView/GroupView.vue";
+import {showNotification} from "@/notifications.js";
 
 export default {
     name: 'Groups',
@@ -66,7 +63,7 @@ export default {
         const isCreateGroupVisible = computed(() => route.path === '/groups/create');
 
         onMounted(async () => {
-            if (route.path === '/groups') {
+            if (route.path === '/groups' || route.path === '/groups/edit' || route.path === '/groups/create') {
                 isShowGroups.value = true;
             } else {
                 isShowGroups.value = false;
@@ -74,12 +71,14 @@ export default {
         });
 
         watch(() => route.path, (newPath, oldPath) => {
-            if (newPath === '/groups' || newPath === '/groups/edit') {
+            if (newPath === '/groups' || newPath === '/groups/edit' || newPath === '/groups/create') {
                 isShowGroups.value = true;
+                console.log(isShowGroups.value)
             } else {
                 isShowGroups.value = false;
             }
         });
+
 
         // Функции для открытия и закрытия модального окна
         const openCreateGroup = () => {
@@ -88,6 +87,8 @@ export default {
 
         const closeCreateGroup = () => {
             router.push('/groups');
+            //await new Promise(resolve => setTimeout(resolve,1));
+            //window.location.reload();
         };
 
         return {

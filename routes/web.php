@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Groups\GroupController;
+use App\Http\Controllers\Groups\GroupsController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
@@ -107,11 +109,16 @@ Route::delete('/friendship/friends/block/{id}', [FriendshipController::class, 'u
 Route::get('/groups', function() {
     return view('welcome');
 });
+Route::get('/groups/create', function() {
+    return view('welcome');
+});
 Route::get('/groups/edit', function() {
     return view('welcome');
 });
-
-
+// Создание группы
+Route::post('/groups/create', [GroupsController::class, 'create'])->name('group.create');
+// Получение данных о группах пользователя
+Route::get('/groups/all', [GroupsController::class, 'showGroups'])->name('groups.show');
 
 
 // Тестирование

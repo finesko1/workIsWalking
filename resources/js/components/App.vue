@@ -131,7 +131,7 @@
             <!-- Окно подтверждения -->
             <div v-if="hasAlertWindow"
                  class="absolute alertWindow flex justify-center items-center w-full h-full">
-                <div class="bg-white rounded-lg shadow-lg p-6 w-1/3 z-20">
+                <div class="bg-white rounded-lg shadow-lg p-6 w-1/3 z-70">
                     <h2 class="text-lg font-semibold mb-4 underline underline-offset-8 decoration-2 decoration-solid">{{ titleAlert }}</h2>
                     <p class="mb-4">{{ msgAlert }}</p>
                     <div class="flex justify-end">
