@@ -4,6 +4,7 @@
 4 npm install @vitejs/plugin-vue
 5 npm install -D tailwindcss postcss autoprefixer
 6 npx tailwind init -p
+npm install translation
 7 npm install
 tailwind.config.js
     module.exports = {

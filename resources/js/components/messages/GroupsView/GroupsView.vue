@@ -1,17 +1,17 @@
 <template>
-    <div>
-        <ul v-if="isDataLoaded" class="grow h-96 overflow-y-auto">
+    <div class="flex flex-col">
+        <ul v-if="isDataLoaded" class="flex flex-col">
             <li v-for="(group, index) in groupsData" :key="group.id" class="flex p-1">
                 <div class="flex-col p-1 w-full border border-black rounded-md text-center text-balance">
                     <div
-                        @click = "goToGroup"
+                        @click = "goToGroup(group.groupName, group.group_id)"
                         class="p-2 flex justify-center hover:rounded-md hover:shadow-inner hover:scale-95 transition-transform duration-200 cursor-pointer">
                         {{ group.groupName }}
                     </div>
                     <div
-                        @click = "showGroupMembersForm = true"
+                        @click = "handleGroupMembers(group.group_id)"
                         class="flex justify-end text-sm font-light underline underline-offset-4 decoration-1 decoration-black decoration-dotted hover:italic cursor-pointer">
-                        {{ group.countUsers }} участник(ов)
+                        {{ group.countUsers }} участника(ов)
                     </div>
                 </div>
             </li>
@@ -25,7 +25,7 @@
                 Загрузка...
             </button>
         </div>
-        <GroupMembers v-if="showGroupMembersForm" @close="showGroupMembersForm = false"></GroupMembers>
+        <GroupMembers :groupId=currentGroupId v-if="showGroupMembersForm" @close="showGroupMembersForm = false"></GroupMembers>
     </div>
 </template>
 
@@ -46,12 +46,8 @@ import {showNotification} from "@/notifications.js";
             const isDataLoaded = ref(false);
             const showGroupMembersForm = ref(false);
             const showGroupForm = ref(false)
-            const groupsData = ref({
-                id: '',
-                groupName: '',
-                countUsers: ''
-            });
-
+            const groupsData = ref([]);
+            const currentGroupId = ref(null);
             onMounted(() => {
                 fetchGroupData()
             });
@@ -63,7 +59,6 @@ import {showNotification} from "@/notifications.js";
                     groupsData.value = response.data.groupsData;
                     await new Promise(resolve => setTimeout(resolve,200));
                     isDataLoaded.value = true;
-                    console.log(groupsData.value)
                 } catch (e) {
                     if (e.response.error){
                         showNotification(e.response.error, false, 1000)
@@ -74,17 +69,22 @@ import {showNotification} from "@/notifications.js";
                     }
                 }
             }
+            const handleGroupMembers = async (groupId) => {
+                showGroupMembersForm.value = true;
+                currentGroupId.value = groupId
+            }
 
-            const goToGroup = () => {
-                emit('close')
-                router.push('/groups/myGroup')
+            const goToGroup = (group_name, group_id) => {
+                emit('group-selected', group_name, group_id)
             }
             return {
                 isDataLoaded,
                 showGroupMembersForm,
                 showGroupForm,
                 goToGroup,
-                groupsData
+                groupsData,
+                handleGroupMembers,
+                currentGroupId
             }
         }
     }

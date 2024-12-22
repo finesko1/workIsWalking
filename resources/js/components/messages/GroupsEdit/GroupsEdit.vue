@@ -8,6 +8,7 @@
                 <h2 class="text-xl font-semibold mb-4 text-center">Редактирование группы</h2>
             </header>
             <div class="edit-content-body flex-col space-y-4 w-full md:flex">
+<!--                Создание материалов группе-->
                 <div class="edit-material-body flex-col gap-1">
                     <div class="flex gap-2 group justify-between items-center edit-material-header-content-body">
                         <p class='flex group-hover:text-green-700 group-hover:scale-90 transition-transform duration-200 ease-in-out select-none'>
@@ -56,7 +57,15 @@
                             </li>
                         </ul>
                     </div>
+                    <div class="flex justify-center">
+                        <button type="button"
+                                @click='addSectionForm = true'
+                                class="text-sm font-normal border border-2 border-cyan-700 rounded-md p-1 m-1 bg-cyan-500 hover:scale-95 transition-transform ease-in-out">
+                            Создать новый раздел
+                        </button>
+                    </div>
                 </div>
+<!--                Создание заданий в группе-->
                 <div class="edit-tasks-body">
                     <div class="flex group justify-between edit-tasks-header-content-body items-center">
                         <p class='group-hover:text-green-700 group-hover:scale-90 transition-transform duration-200 ease-in-out select-none'>
@@ -138,6 +147,7 @@
                         </button>
                     </div>
                 </div>
+<!--                Создание мероприятий-->
                 <div class="edit-events-body">
                     <div class="flex group justify-between edit-events-header-content-body items-center">
                         <p class='group-hover:text-green-700 group-hover:scale-90 transition-transform duration-200 ease-in-out select-none'>
@@ -217,6 +227,7 @@
                         </button>
                     </div>
                 </div>
+<!--                Включение чата группы-->
                 <div class="edit-messenger-body">
                     <div class="flex group justify-between edit-messenger-header-content-body items-center">
                         <p class='group-hover:text-green-700 group-hover:scale-90 transition-transform duration-200 ease-in-out select-none'>
@@ -238,6 +249,7 @@
                         </div>
                     </div>
                 </div>
+<!--                Управление пользователями-->
                 <div class="edit-users-body">
                     <div class="flex group justify-between edit-users-header-content-body items-center">
                         <div class='group-hover:text-green-700 group-hover:scale-90 transition-transform duration-200 ease-in-out select-none'>
@@ -338,6 +350,7 @@
                     </div>
                 </div>
             </div>
+<!--            Создание заданий в группе-->
             <div class="flex mt-8 justify-center p-1 text-md border-2 border-cyan-800 bg-cyan-600 rounded-md
                     hover:scale-95 transition-transform duration-200">
                 <button type="button"

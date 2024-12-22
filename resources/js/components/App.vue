@@ -117,7 +117,7 @@
         </header>
 
 
-        <div class="flex body p-1 flex-1 relative">
+        <div class="flex body p-1 grow relative">
             <div v-if="$route.name === 'Main' || $route.name === 'Root'" class="flex items-center justify-center w-full">
                 <router-view></router-view>
             </div>

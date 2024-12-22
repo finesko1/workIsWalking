@@ -11,10 +11,10 @@ class Material extends Model
 
     protected $table = 'materials';
 
-    protected $guarded = ['id', 'created_at', 'updated_at'];
+    protected $guarded = ['created_at', 'updated_at'];
     protected $fillable = ['group_id', 'info'];
 
-    public function all_materials() {
-        return $this->belongsToMany(Material::class, 'material_link', 'id', 'material_id');
+    public function links() {
+        return $this->hasMany(Material_links::class, 'material_id', 'id');
     }
 }

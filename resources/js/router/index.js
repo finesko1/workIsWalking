@@ -205,44 +205,45 @@ const routes = [
         children: [
             {
                 path: '/groups/all',
-                name: GroupsView,
+                name: 'GroupsView',
                 component: GroupsView
             },
             {
-                path: '/groups/myGroup',
-                name: GroupView,
-                component: GroupView
+                path: '/groups/:groupId',
+                name: 'GroupView',
+                component: GroupView,
+                props: true
             },
             {
                 path: '/groups/create',
-                name: GroupsCreate,
+                name: 'GroupsCreate',
                 component: GroupsCreate,
             },
             {
                 path: '/groups/edit',
-                name: GroupsEdit,
+                name: 'GroupsEdit',
                 component: GroupsEdit,
                 children: [
                     {
                         path: '/groups/edit/addTaskInSections',
-                        name:   AddTask,
+                        name:   'AddTask',
                         component: AddTask
                     },
                     {
                         path: '/groups/edit/addSectionInSections',
-                        name:   AddSection,
+                        name:   'AddSection',
                         component: AddSection
                     },
                     {
                         path: '/groups/edit/addEventInSections',
-                        name:   AddEvent,
+                        name:   'AddEvent',
                         component: AddEvent
                     }
                 ]
             },
             {
-                path: '/groups/groupMembers',
-                name: GroupMembers,
+                path: '/groups/:groupId/users',
+                name: 'GroupMembers',
                 component: GroupMembers,
             }
         ]

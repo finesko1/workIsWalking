@@ -1,6 +1,6 @@
 <template>
     <div v-if="isShowGroups"
-         class="relative group-body flex-col p-2 mx-auto w-full h-full max-w-lg">
+         class="relative group-body flex-col p-2 mx-auto w-full max-w-lg flex-1">
         <!-- Перекрытие border -->
         <div class="sticky top-0 z-10 w-full h-2 bg-neutral-300"></div>
         <nav class="sticky top-0 z-20 flex justify-center w-full border border-1 rounded-t-xl border-black bg-neutral-300 shadow-md">
@@ -25,16 +25,19 @@
             </div>
         </nav>
 
-        <div class="group-content flex-col p-2 space-y-1 w-full justify-center border border-black border-1 border-t-0 rounded-b-xl max-h-full overflow-y-auto">
-            <GroupsView @close="isShowGroups = false"/>
-<!--            Логика для активации строки поиска-->
+        <div class="group-content p-2 space-y-1 w-full border border-black border-t-0 rounded-b-xl">
+            <GroupsView @group-selected="handleGroupSelected"  @close="isShowGroups = false"/>
         </div>
 
         <!-- Модальное окно создания группы -->
-        <GroupsCreate v-if="isCreateGroupVisible" @close="closeCreateGroup" />
+        <GroupsCreate v-if="isCreateGroupVisible" @close="closeCreateGroup"/>
     </div>
-    <div v-else>
-        <GroupView @close="isShowGroups = true"></GroupView>
+    <div v-else class="flex-1 h-full">
+        <GroupView
+            :groupId=currentGroup
+            :groupName=currentGroupName
+            @close="isShowGroups = true"
+        ></GroupView>
     </div>
 </template>
 
@@ -58,7 +61,8 @@ export default {
         const router = useRouter();
         const route = useRoute();
         const isShowGroups = ref(false);
-
+        const currentGroup = ref(null);
+        const currentGroupName = ref(null);
         // Определяем видимость модального окна создания группы
         const isCreateGroupVisible = computed(() => route.path === '/groups/create');
 
@@ -73,11 +77,17 @@ export default {
         watch(() => route.path, (newPath, oldPath) => {
             if (newPath === '/groups' || newPath === '/groups/edit' || newPath === '/groups/create') {
                 isShowGroups.value = true;
-                console.log(isShowGroups.value)
             } else {
                 isShowGroups.value = false;
             }
         });
+
+        const handleGroupSelected = (group_name, group_id) => {
+            currentGroup.value = group_id;
+            currentGroupName.value = group_name;
+            isShowGroups.value = false;
+            router.push(`/groups/${group_id}`)
+        }
 
 
         // Функции для открытия и закрытия модального окна
@@ -95,7 +105,10 @@ export default {
             isCreateGroupVisible,
             openCreateGroup,
             closeCreateGroup,
-            isShowGroups
+            isShowGroups,
+            handleGroupSelected,
+            currentGroup,
+            currentGroupName
         };
     }
 };

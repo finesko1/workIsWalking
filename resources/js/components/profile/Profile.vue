@@ -1,5 +1,5 @@
 <template>
-    <div class="flex w-full h-screen justify-center items-center">
+    <div class="flex w-full h-full justify-center items-center">
         <div class="shadow-lg bg-neutral-300 p-6 rounded-lg">
             <header class="text-center mb-6">
                 <h2 class="text-lg font-semibold">{{ headForm }}</h2>

@@ -118,7 +118,12 @@ Route::get('/groups/edit', function() {
 // Создание группы
 Route::post('/groups/create', [GroupsController::class, 'create'])->name('group.create');
 // Получение данных о группах пользователя
-Route::get('/groups/all', [GroupsController::class, 'showGroups'])->name('groups.show');
+Route::get('/groups/all', [GroupsController::class, 'showGroups'])->name('groups.show'); // название групп + количество пользователей
+Route::get('/groups/{id}/countUsers', [GroupsController::class, 'countUsers'])->name('countUsers.show'); // количество пользователей
+Route::get('/group/{id}/users', [GroupController::class, 'users'])->name('users.show');
+Route::get('/group/{id}/materials', [GroupController::class, 'getMaterials'])->name('materials.show');
+Route::get('/group/{id}/tasks', [GroupController::class, 'getTasks'])->name('tasks.show');
+Route::get('/group/{id}/{link}', [GroupController::class, 'previewFile'])->name('file.preview');
 
 
 // Тестирование

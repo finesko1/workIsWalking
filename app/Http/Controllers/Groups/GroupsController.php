@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Groups;
 
 use App\Http\Controllers\Controller;
 use App\Models\Group\Group;
+use App\Models\Group\Material;
 use App\Models\Group\User_Groups;
+use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class GroupsController extends Controller
@@ -78,7 +81,7 @@ class GroupsController extends Controller
 
                 // Добавляем данные в результирующий массив
                 $resultData[] = [
-                    //'group_id' => $group->id,
+                    'group_id' => $group->id,
                     'groupName' => $group->name,
                     'countUsers' => $countUsersInGroup,
                 ];
@@ -90,8 +93,40 @@ class GroupsController extends Controller
                     'groupsData' => $resultData
                 ], 200);
             }
-            return view('welcome');
+            return view('welcome', ['groupsData' => $resultData]);
 
+        }
+        catch (\Exception $e) {
+            if(request()->expectsJson()) {
+                return response()->json(['error' => 'Попробуйте перезагрузить страницу'
+                ], 500);
+            }
+            return view('welcome');
+        }
+    }
+
+    public function countUsers($groupId) {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json(['error' => 'Ошибка авторизации'], 401);
+            }
+
+            // Получаем количество участников
+            $countUsersInGroup = User_Groups::where('group_id', $groupId)->count();
+
+
+            if(request()->expectsJson()) {
+                return response()->json(['message' => 'Запрос выполнен успешно',
+                    'countUsers' => $countUsersInGroup
+                ], 200);
+            }
+            return view('welcome', ['countUsers' => $countUsersInGroup]);
+
+        }
+        catch (ValidationException $e) {
+            return response()->json(['error' => 'Ошибка валидации',
+                'errors' => $e->errors()]);
         }
         catch (\Exception $e) {
             if(request()->expectsJson()) {
