@@ -47,7 +47,9 @@
                                 {{ task }}
                             </header>
                             <ul class="list-disc ml-12">
-                                <li v-for="(sub_task, subIndex) in groupData.tasks.links[index]" :key="sub_task.id">
+                                <li v-for="(sub_task, subIndex) in groupData.tasks.links[index]" :key="sub_task.id"
+                                    @click="previewFile(groupData.materials.paths[index], sub_task.link)"
+                                    class="hover:underline hover:underline-offset-4 hover:decoration-blue-400 hover:decoration-2 hover:italic hover:cursor-pointer">
                                     {{ sub_task.link }}
                                 </li>
                             </ul>
@@ -64,7 +66,8 @@
                     </ul>
                 </div>
             </div>
-            <footer class="flex justify-center w-full">
+            <footer class="flex justify-center w-full"
+                v-if="showChat">
                 <button class="text-blue-700 w-full bg-neutral-200 py-2 px-4 rounded-md hover:text-white hover:bg-neutral-400 hover:scale-95 transition-transform duration-300">
                     Открыть чат
                 </button>
@@ -100,11 +103,12 @@
 </template>
 
 <script>
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 import GroupMembers from "@/components/messages/GroupsView/GroupMembersInSection.vue";
 import GroupEdit from "@/components/messages/GroupsEdit/GroupsEdit.vue";
 import { useRouter } from "vue-router";
-import {showNotification} from "@/notifications.js";
+import { showNotification } from "@/notifications.js";
+import { renderAsync } from 'docx-preview';
 
 export default {
     name: 'GroupView',
@@ -117,8 +121,9 @@ export default {
         const showGroupEdit = ref(false);
         const showGroupMembersForm = ref(false);
         const router = useRouter();
+        const showChat = ref(true)
         const groupData = ref({
-            groupName : '',
+            groupName: '',
             countUsers: 0,
             materials: {},
             tasks: {}
@@ -126,7 +131,7 @@ export default {
         const currentGroupId = ref(props.groupId || localStorage.getItem('groupId'));
         const currentGroupName = ref(props.groupName || localStorage.getItem('groupName'));
 
-        // Сохраняем groupId в localStorage, если он передан через props
+        // Сохранение groupId и groupName в localStorage
         if (props) {
             localStorage.setItem('groupId', props.groupId);
             localStorage.setItem('groupName', props.groupName);
@@ -139,9 +144,12 @@ export default {
                 let response = await axios.get(`/groups/${groupId}/countUsers?ts=${timestamp}`);
                 let response_materials = await axios.get(`/group/${groupId}/materials?ts=${timestamp}`);
                 let response_tasks = await axios.get(`/group/${groupId}/tasks?ts=${timestamp}`);
+                let response_isChat = await axios.get(`/group/${groupId}/checkChat?ts=${timestamp}`);
+
                 groupData.value.countUsers = response.data.countUsers;
                 groupData.value.materials = response_materials.data;
                 groupData.value.tasks = response_tasks.data;
+                showChat.value = response_isChat.data.chatIsOpen;
             } catch (e) {
                 if (e.response) {
                     showNotification(e.response.error, 0, 1000);
@@ -161,22 +169,38 @@ export default {
         });
 
         const previewFile = async (material, sub_material) => {
-            let path = material + '/' + sub_material;
+            let path = `${material}/${sub_material}`;
             try {
-                const groupId = currentGroupId.value
-                const response = await axios.get(`/group/${groupId}/${path}`, {
-                    responseType: 'blob'
-                });
+                path = `/group/${currentGroupId.value}/preview/${path}`;
+                const response = await axios.get(path, { responseType: 'blob' });
 
-                const fileURL = window.URL.createObjectURL(new Blob([response.data]));
-                const fileWindow = window.open(fileURL);
-                if (!fileWindow) {
-                    alert('Не удалось открыть файл для предпросмотра. Пожалуйста, разрешите всплывающие окна.');
+                const contentType = response.headers['content-type'];
+
+                const fileURL = URL.createObjectURL(response.data);
+
+                if (contentType === 'application/pdf') {
+                    const newWindow = window.open(fileURL, '_blank');
+                    if (!newWindow) {
+                        alert('Please allow popups for this site to view the PDF.');
+                    } else {
+                        newWindow.onload = () => {
+                            URL.revokeObjectURL(fileURL);
+                        };
+                    }
+                } else {
+                    const link = document.createElement('a');
+                    link.href = fileURL;
+                    link.setAttribute('download', sub_material);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    URL.revokeObjectURL(fileURL);
                 }
             } catch (error) {
                 console.error('Ошибка при предпросмотре файла:', error);
             }
-        }
+        };
 
         return {
             showGroupEdit,
@@ -185,7 +209,8 @@ export default {
             groupData,
             currentGroupId,
             currentGroupName,
-            previewFile
+            previewFile,
+            showChat
         }
     }
 }

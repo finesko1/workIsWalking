@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Groups;
 
 use App\Http\Controllers\Controller;
+use App\Models\Group\Group;
 use App\Models\Group\Material;
 use App\Models\Group\User_Groups;
 use App\Models\User\User;
@@ -111,42 +112,34 @@ class GroupController extends Controller
 
     }
 
-    //Скачивание файла с сервера
-    public function downloadFile($groupId, $fileName)
-    {
-        try {
-            $filePath = "/groups/{$groupId}/{$fileName}";
-
-            if (Storage::disk('public')->exists($filePath)) {
-                return response()->download(storage_path("app/public/{$filePath}"));
-            } else {
-                return response()->json(['error' => 'Файл не найден'], 404);
-            }
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Ошибка при загрузке файла'], 500);
-        }
-    }
 
     // Просмотр файла на сервере
-    public function previewFile($groupId, $fileName)
+    public function previewFile($groupId, $filePath)
     {
         try {
-            $filePath = "groups/{$groupId}/{$fileName}";
+            $filePath = "/groups/{$groupId}/{$filePath}";
 
-            if (Storage::disk('public')->exists($filePath)) {
-                $fileContent = Storage::disk('public')->get($filePath);
-                $mimeType = Storage::disk('public')->mimeType($filePath);
+            // Получение содержимого файла и его MIME-типа
+            $fileContent = Storage::disk('public')->get($filePath);
+            $mimeType = Storage::disk('public')->mimeType($filePath);
 
-                return response($fileContent, 200)->header('Content-Type', $mimeType);
-            } else {
-                return response()->json(['error' => 'Файл не найден'], 404);
-            }
+            return response($fileContent, 200)->header('Content-Type', $mimeType);
         } catch (\Exception $e) {
+            // Логирование ошибки для отладки
+            \Log::error('Ошибка при предпросмотре файла: ' . $e->getMessage());
             return response()->json(['error' => 'Ошибка при предпросмотре файла'], 500);
         }
     }
 
 
+    public function checkChat($groupId) {
+        if (!request()->expectsJson()) {
+            return view('welcome');
+        }
+        $chatIsOpen = Group::where('id', $groupId)->value('is_chat_open');
+
+        return response()->json(['chatIsOpen' => $chatIsOpen]);
+    }
 
 
     private function getUrl($user): string

@@ -82,3 +82,9 @@ composer require laravel-lang/lang --dev
 
 Как уже упоминалось ранее, проверьте файл config/app.php,
 чтобы параметр locale был установлен на 'ru':
+
+
+converter
+composer require phpoffice/phpword
+composer require dompdf/dompdf
+php ini: extension=zip, gd

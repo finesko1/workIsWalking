@@ -245,6 +245,7 @@ const routes = [
                 path: '/groups/:groupId/users',
                 name: 'GroupMembers',
                 component: GroupMembers,
+                props: true
             }
         ]
     },

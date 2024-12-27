@@ -123,8 +123,10 @@ Route::get('/groups/{id}/countUsers', [GroupsController::class, 'countUsers'])->
 Route::get('/group/{id}/users', [GroupController::class, 'users'])->name('users.show');
 Route::get('/group/{id}/materials', [GroupController::class, 'getMaterials'])->name('materials.show');
 Route::get('/group/{id}/tasks', [GroupController::class, 'getTasks'])->name('tasks.show');
-Route::get('/group/{id}/{link}', [GroupController::class, 'previewFile'])->name('file.preview');
-
+Route::get('/group/{groupId}/preview/{path}', [GroupController::class, 'previewFile'])
+    ->where('path', '.*')
+    ->name('file.preview');
+Route::get('/group/{groupId}/checkChat', [GroupController::class, 'checkChat'])->name('chat.show');
 
 // Тестирование
 Route::get('/test-session', function () {
