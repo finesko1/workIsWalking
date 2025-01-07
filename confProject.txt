@@ -37,14 +37,15 @@ vite.config.js
       ],
     });
 app.js
-    import { createApp } from 'vue';
-    import ExampleComponent from './components/ExampleComponent.vue';
-
-    createApp({
-      components: {
-        ExampleComponent,
-      },
-    }).mount('#app');
+	import './bootstrap';
+	
+	import { createApp } from 'vue';
+	import App from './components/App.vue';
+	import router from "./router/index.js";
+	import { createPinia } from 'pinia';
+	const pinia = createPinia();
+	
+	createApp(App).use(router).use(pinia).mount('#app');
 
 иконки
     npm install @heroicons/vue
@@ -79,7 +80,6 @@ composer require laravel-lang/lang --dev
 
 
 Убедитесь, что язык по умолчанию — русский:
-
 Как уже упоминалось ранее, проверьте файл config/app.php,
 чтобы параметр locale был установлен на 'ru':
 

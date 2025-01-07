@@ -25,6 +25,11 @@
                 Загрузка...
             </button>
         </div>
+        <div v-if="isDataLoaded && groupsData.length === 0" class="flex justify-center my-4">
+            <div>
+                Вы не состоите в группах
+            </div>
+        </div>
         <GroupMembers :groupId=currentGroupId v-if="showGroupMembersForm" @close="showGroupMembersForm = false"></GroupMembers>
     </div>
 </template>
@@ -42,12 +47,13 @@ import {showNotification} from "@/notifications.js";
             GroupMembers,
             GroupView
         },
+        props: ['currentGroupId'],
         setup(props, { emit }) {
             const isDataLoaded = ref(false);
             const showGroupMembersForm = ref(false);
             const showGroupForm = ref(false)
             const groupsData = ref([]);
-            const currentGroupId = ref(null);
+            const currentGroupId = ref(props.currentGroupId || localStorage.getItem('groupId'));
             onMounted(() => {
                 fetchGroupData()
             });
@@ -56,7 +62,7 @@ import {showNotification} from "@/notifications.js";
             const fetchGroupData = async () => {
                 try {
                     let response = await axios.get('/groups/all');
-                    groupsData.value = response.data.groupsData;
+                    groupsData.value = response.data.groupsData || [];
                     await new Promise(resolve => setTimeout(resolve,200));
                     isDataLoaded.value = true;
                 } catch (e) {

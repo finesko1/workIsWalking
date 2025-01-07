@@ -73,7 +73,6 @@ export const useUserStore = defineStore('user', () => {
             user.value = null;
             localStorage.setItem('isAuthenticated', 'false');
             isAuthenticated.value = false;
-            console.log("isAuthenticated: ", isAuthenticated.value)
         }
     };
 

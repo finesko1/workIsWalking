@@ -119,21 +119,22 @@ Route::get('/groups/edit', function() {
 Route::post('/groups/create', [GroupsController::class, 'create'])->name('group.create');
 // Получение данных о группах пользователя
 Route::get('/groups/all', [GroupsController::class, 'showGroups'])->name('groups.show'); // название групп + количество пользователей
-Route::get('/groups/{id}/countUsers', [GroupsController::class, 'countUsers'])->name('countUsers.show'); // количество пользователей
-Route::get('/group/{id}/users', [GroupController::class, 'users'])->name('users.show');
-Route::get('/group/{id}/materials', [GroupController::class, 'getMaterials'])->name('materials.show');
-Route::get('/group/{id}/tasks', [GroupController::class, 'getTasks'])->name('tasks.show');
+Route::get('/group/{groupId}/countUsers', [GroupController::class, 'countUsers'])->name('countUsers.show'); // количество пользователей
+Route::get('/group/{groupId}/users', [GroupController::class, 'users'])->name('users.show');
+Route::get('/group/{groupId}/materials', [GroupController::class, 'getMaterials'])->name('materials.show');
+Route::get('/group/{groupId}/tasks', [GroupController::class, 'getTasks'])->name('tasks.show');
 Route::get('/group/{groupId}/preview/{path}', [GroupController::class, 'previewFile'])
     ->where('path', '.*')
     ->name('file.preview');
-Route::get('/group/{groupId}/checkChat', [GroupController::class, 'checkChat'])->name('chat.show');
+Route::get('/group/{groupId}/checkChat', [GroupController::class, 'checkChat'])->name('chat.check');
+Route::post('/group/{groupId}/save', [GroupController::class, 'saveChanges'])->name('group.save'); // сохранение изменений в группе
+Route::get('/group/{groupId}/getData', [GroupController::class, 'getData'])->name('group.get'); // получение данных группы при изменении
+Route::get('/group/{groupId}/getMaterialData', [GroupController::class, 'getMaterialData'])->name('group.get'); // получение материалов группы
+Route::get('/group/{groupId}/checkRole', [GroupController::class, 'checkRole'])->name('role.check'); // получение роли в группе
+Route::get('/group/{groupId}/getPreferredFriends', [GroupController::class, 'getPreferredFriends'])->name('preferredFriends.get'); // получение доступных для добавления в группу пользователей
+Route::post('/group/{groupId}/addPreferredFriends', [GroupController::class, 'addPreferredFriends'])->name('preferredFriends.add'); // добавление в группу пользователя
 
-// Тестирование
-Route::get('/test-session', function () {
-    $value = session('test_key', 'default');
-    session(['test_key' => 'value']);
-    return $value;
-});
+
 
 Route::get('/{any}', function () {
     return view('welcome');

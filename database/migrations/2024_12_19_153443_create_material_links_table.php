@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('material_links', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('material_id')->nullable(false);
-            $table->string('link')->nullable(false);
+            $table->string('filename')->nullable(false);
             $table->timestamps();
 
             $table->foreign('material_id')->references('id')->on('materials')->onDelete('cascade');

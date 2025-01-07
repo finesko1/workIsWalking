@@ -52,7 +52,6 @@ export default {
             try {
                 let response = await axios.get(`/group/${props.groupId}/users`)
                 users.value = response.data.usersData
-                console.log(props.groupId)
             } catch (e) {
                 if (e.response) {
                     showNotification(e.response.error, 0, 1000)

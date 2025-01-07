@@ -26,13 +26,13 @@
         </nav>
 
         <div class="group-content p-2 space-y-1 w-full border border-black border-t-0 rounded-b-xl">
-            <GroupsView @group-selected="handleGroupSelected"  @close="isShowGroups = false"/>
+            <GroupsView :groupId=currentGroup @group-selected="handleGroupSelected"  @close="isShowGroups = false"/>
         </div>
 
         <!-- Модальное окно создания группы -->
         <GroupsCreate v-if="isCreateGroupVisible" @close="closeCreateGroup"/>
     </div>
-    <div v-else class="flex-1 h-full">
+    <div v-else class="flex-1 h-full w-full">
         <GroupView
             :groupId=currentGroup
             :groupName=currentGroupName
@@ -85,8 +85,10 @@ export default {
         const handleGroupSelected = (group_name, group_id) => {
             currentGroup.value = group_id;
             currentGroupName.value = group_name;
+            localStorage.setItem('groupId', group_id);
+            localStorage.setItem('groupName', group_name);
             isShowGroups.value = false;
-            router.push(`/groups/${group_id}`)
+            router.push(`/group/${group_id}`)
         }
 
 
@@ -97,8 +99,6 @@ export default {
 
         const closeCreateGroup = () => {
             router.push('/groups');
-            //await new Promise(resolve => setTimeout(resolve,1));
-            //window.location.reload();
         };
 
         return {

@@ -1,0 +1,46 @@
+$validatedData = $request->validate([
+                'groupName' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                // Добавьте другие правила валидации по необходимости
+                'materials.*.file' => 'required|file|mimes:txt,doc,docx,pdf,jpg,png|max:5120', // Пример допустимых типов и размера файлов
+                'materials.*.isNew' => 'required|boolean',
+                'materials.*.isDelete' => 'required|boolean',
+            ]);
+
+            // Сохранение текстовых данных группы
+            $group = Group::updateOrCreate(
+                ['id' => $request->input('groupId')], // Предполагается, что вы передаете groupId для обновления
+                [
+                    'name' => $validatedData['groupName'],
+                    'description' => $validatedData['description'],
+                    // Добавьте другие поля по необходимости
+                ]
+            );
+
+            // Обработка файлов материалов
+            if ($request->has('materials')) {
+                foreach ($request->materials as $materialData) {
+                    if ($materialData['isDelete']) {
+                        // Логика удаления файла, если необходимо
+                        $material = Material::find($materialData['id']);
+                        if ($material) {
+                            Storage::disk('public')->delete($material->path);
+                            $material->delete();
+                        }
+                        continue;
+                    }
+
+                    if ($materialData['isNew'] && isset($materialData['file'])) {
+                        // Сохранение нового файла
+                        $path = $materialData['file']->store('materials', 'public');
+
+                        // Создание записи в базе данных
+                        Material::create([
+                            'group_id' => $group->id,
+                            'path' => $path,
+                            'info' => $path, // Или другая информация о файле
+                        ]);
+                    }
+                    // Добавьте логику для обновления существующих файлов, если необходимо
+                }
+            }

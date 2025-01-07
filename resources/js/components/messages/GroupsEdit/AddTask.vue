@@ -19,7 +19,6 @@
                 </div>
                 <div class="flex justify-center mt-4">
                     <button
-                        @click="$emit('close')"
                         class="bg-cyan-600 rounded-md py-2 px-4 hover:scale-95 transition-transform duration-200">
                         Добавить
                     </button>
@@ -30,9 +29,11 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+
     export default {
         name: 'AddTask',
-        setup() {
+        setup(props, {emit}) {
 
         }
     }

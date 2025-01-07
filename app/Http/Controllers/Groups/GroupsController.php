@@ -104,36 +104,4 @@ class GroupsController extends Controller
             return view('welcome');
         }
     }
-
-    public function countUsers($groupId) {
-        try {
-            $user = auth()->user();
-            if (!$user) {
-                return response()->json(['error' => 'Ошибка авторизации'], 401);
-            }
-
-            // Получаем количество участников
-            $countUsersInGroup = User_Groups::where('group_id', $groupId)->count();
-
-
-            if(request()->expectsJson()) {
-                return response()->json(['message' => 'Запрос выполнен успешно',
-                    'countUsers' => $countUsersInGroup
-                ], 200);
-            }
-            return view('welcome', ['countUsers' => $countUsersInGroup]);
-
-        }
-        catch (ValidationException $e) {
-            return response()->json(['error' => 'Ошибка валидации',
-                'errors' => $e->errors()]);
-        }
-        catch (\Exception $e) {
-            if(request()->expectsJson()) {
-                return response()->json(['error' => 'Попробуйте перезагрузить страницу'
-                ], 500);
-            }
-            return view('welcome');
-        }
-    }
 }

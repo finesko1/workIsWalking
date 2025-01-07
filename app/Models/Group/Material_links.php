@@ -11,7 +11,7 @@ class Material_links extends Model
     protected $table = 'material_links';
     protected $fillable = [
         'material_id',
-        'link'
+        'filename'
     ];
 
     public function material() {

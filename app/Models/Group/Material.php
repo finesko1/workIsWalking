@@ -12,7 +12,7 @@ class Material extends Model
     protected $table = 'materials';
 
     protected $guarded = ['created_at', 'updated_at'];
-    protected $fillable = ['group_id', 'info'];
+    protected $fillable = ['group_id', 'section'];
 
     public function links() {
         return $this->hasMany(Material_links::class, 'material_id', 'id');

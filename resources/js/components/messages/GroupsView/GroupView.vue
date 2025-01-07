@@ -13,50 +13,50 @@
         </div>
 
         <!-- Центральная колонка -->
-        <div class="flex flex-col items-center">
+        <div class="flex flex-col items-center justify-center">
             <header class="font-semibold text-2xl italic text-indigo-800 mb-4">
                 {{ currentGroupName }}
             </header>
-            <div class="grow w-full">
-                <div class="w-full max-w-md bg-white p-4 rounded shadow mb-4">
+            <div class="grow w-full justify-center">
+                <div class="w-full flex flex-col bg-white p-4 rounded shadow mb-4">
                     <header class="font-semibold mb-2">
                         Материалы
                     </header>
                     <ul class="ml-6">
-                        <li v-for="(material, index) in groupData.materials.directories" :key="index">
-                            <header>
-                                {{ material }}
+                        <li v-for="(materialSection, materialSectionIndex) in groupData.materialSections" :key="materialSectionIndex">
+                            <header class="font-semibold">
+                                {{ materialSection.sectionName }}:
                             </header>
                             <ul class="list-disc ml-12">
-                                <li v-for="(sub_material, subIndex) in groupData.materials.links[index]" :key="sub_material.id"
-                                    @click="previewFile(groupData.materials.paths[index], sub_material.link)"
+                                <li v-for="(material, materialIndex) in materialSection.materials" :key="materialIndex"
+                                    @click="previewFile('materials', materialSection.sectionName, material.name)"
                                     class="hover:underline hover:underline-offset-4 hover:decoration-blue-400 hover:decoration-2 hover:italic hover:cursor-pointer">
-                                    {{ sub_material.link }}
+                                    {{ material.name }}
                                 </li>
                             </ul>
                         </li>
                     </ul>
                 </div>
-                <div class="w-full max-w-md bg-white p-4 rounded shadow mb-4">
-                    <header class="font-semibold mb-2">
-                        Задания
-                    </header>
-                    <ul class="ml-6">
-                        <li v-for="(task, index) in groupData.tasks.directories" :key="index">
-                            <header>
-                                {{ task }}
-                            </header>
-                            <ul class="list-disc ml-12">
-                                <li v-for="(sub_task, subIndex) in groupData.tasks.links[index]" :key="sub_task.id"
-                                    @click="previewFile(groupData.materials.paths[index], sub_task.link)"
-                                    class="hover:underline hover:underline-offset-4 hover:decoration-blue-400 hover:decoration-2 hover:italic hover:cursor-pointer">
-                                    {{ sub_task.link }}
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="w-full max-w-md bg-white p-4 rounded shadow">
+<!--                <div class="w-full bg-white p-4 rounded shadow mb-4">-->
+<!--                    <header class="font-semibold mb-2">-->
+<!--                        Задания-->
+<!--                    </header>-->
+<!--                    <ul class="ml-6">-->
+<!--                        <li v-for="(task, index) in groupData.taskSections.directories" :key="index">-->
+<!--                            <header>-->
+<!--                                {{ task }}-->
+<!--                            </header>-->
+<!--                            <ul class="list-disc ml-12">-->
+<!--                                <li v-for="(sub_task, subIndex) in groupData.taskSections.links[index]" :key="sub_task.id"-->
+<!--                                    @click="previewFile(groupData.materials.paths[index], sub_task.link)"-->
+<!--                                    class="hover:underline hover:underline-offset-4 hover:decoration-blue-400 hover:decoration-2 hover:italic hover:cursor-pointer">-->
+<!--                                    {{ sub_task.link }}-->
+<!--                                </li>-->
+<!--                            </ul>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+<!--                </div>-->
+                <div class="w-full bg-white p-4 rounded shadow">
                     <header class="font-semibold mb-2">
                         Мероприятия
                     </header>
@@ -72,12 +72,13 @@
                     Открыть чат
                 </button>
             </footer>
-            <GroupEdit v-if="showGroupEdit" @close="showGroupEdit = false"></GroupEdit>
+            <GroupEdit :groupId="currentGroupId" v-if="showGroupEdit" @close="showGroupEdit = false"></GroupEdit>
         </div>
 
         <!-- Правая колонка -->
         <div class="flex flex-col items-end">
             <button
+                v-if="role === 'admin'"
                 type="button"
                 @click="showGroupEdit = true"
                 class="text-gray-500 hover:text-gray-800 mb-4">
@@ -122,38 +123,44 @@ export default {
         const showGroupMembersForm = ref(false);
         const router = useRouter();
         const showChat = ref(true)
+        const role = ref('user')
         const groupData = ref({
             groupName: '',
             countUsers: 0,
-            materials: {},
-            tasks: {}
+            materialSections: [
+                // {
+                //     sectionName: '',
+                //     materials: [
+                //         {
+                //             name: '',
+                //             file: ''
+                //         }
+                //     ]
+                // }
+            ],
+            taskSections: []
         });
         const currentGroupId = ref(props.groupId || localStorage.getItem('groupId'));
         const currentGroupName = ref(props.groupName || localStorage.getItem('groupName'));
 
-        // Сохранение groupId и groupName в localStorage
-        if (props) {
-            localStorage.setItem('groupId', props.groupId);
-            localStorage.setItem('groupName', props.groupName);
-        }
 
+        // Получение данных группы: материалы, задания и прочее
         const fetchGroupData = async () => {
             try {
                 const groupId = currentGroupId.value;
                 const timestamp = new Date().getTime();
-                let response = await axios.get(`/groups/${groupId}/countUsers?ts=${timestamp}`);
-                let response_materials = await axios.get(`/group/${groupId}/materials?ts=${timestamp}`);
-                let response_tasks = await axios.get(`/group/${groupId}/tasks?ts=${timestamp}`);
+                let response_count_users = await axios.get(`/group/${groupId}/countUsers?ts=${timestamp}`);
+                let response_material_data = await axios.get(`/group/${groupId}/getMaterialData?ts=${timestamp}`);
                 let response_isChat = await axios.get(`/group/${groupId}/checkChat?ts=${timestamp}`);
+                let response_role = await axios.get(`/group/${groupId}/checkRole?ts=${timestamp}`);
 
-                groupData.value.countUsers = response.data.countUsers;
-                groupData.value.materials = response_materials.data;
-                groupData.value.tasks = response_tasks.data;
-                showChat.value = response_isChat.data.chatIsOpen;
+                groupData.value.countUsers = response_count_users.data.countUsers || 0;
+                groupData.value.materialSections = response_material_data.data.materialSections || [];
+                showChat.value = response_isChat.data.chatIsOpen || true;
+                role.value = response_role.data.role || 'user';
             } catch (e) {
                 if (e.response) {
-                    showNotification(e.response.error, 0, 1000);
-                    console.log(e.response.errors);
+                    console.log(e.response.data);
                 } else {
                     console.log(e.message);
                 }
@@ -168,14 +175,13 @@ export default {
             }
         });
 
-        const previewFile = async (material, sub_material) => {
-            let path = `${material}/${sub_material}`;
+        // Предпросмотр для pdf, скачивание для doc-файлов
+        const previewFile = async (category, section, material) => {
             try {
-                path = `/group/${currentGroupId.value}/preview/${path}`;
+                let path = `/group/${currentGroupId.value}/preview/${category}/${section}/${material}`;
                 const response = await axios.get(path, { responseType: 'blob' });
 
                 const contentType = response.headers['content-type'];
-
                 const fileURL = URL.createObjectURL(response.data);
 
                 if (contentType === 'application/pdf') {
@@ -184,13 +190,13 @@ export default {
                         alert('Please allow popups for this site to view the PDF.');
                     } else {
                         newWindow.onload = () => {
-                            URL.revokeObjectURL(fileURL);
+                            URL.revokeObjectURL(material);
                         };
                     }
                 } else {
                     const link = document.createElement('a');
                     link.href = fileURL;
-                    link.setAttribute('download', sub_material);
+                    link.setAttribute('download', material);
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -210,7 +216,8 @@ export default {
             currentGroupId,
             currentGroupName,
             previewFile,
-            showChat
+            showChat,
+            role
         }
     }
 }

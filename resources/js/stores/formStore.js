@@ -15,7 +15,6 @@ export const useFormStore = defineStore('formStore', {
                     // Шифруем пароль перед сохранением
                     try {
                         value = CryptoJS.AES.encrypt(value, SECRET_KEY).toString();
-                        console.log('Зашифрованный пароль:', value);
                     } catch (error) {
                         console.error('Ошибка при шифровании пароля:', error);
                     }
@@ -34,7 +33,6 @@ export const useFormStore = defineStore('formStore', {
                         try {
                             const bytes = CryptoJS.AES.decrypt(value, SECRET_KEY);
                             value = bytes.toString(CryptoJS.enc.Utf8);
-                            console.log('Расшифрованный пароль:', value);
                         } catch (error) {
                             console.error('Ошибка при расшифровке пароля:', error);
                             value = '';

@@ -37,6 +37,7 @@ import AddSection from "../components/messages/GroupsEdit/AddSection.vue";
 import AddEvent from "../components/messages/GroupsEdit/AddEvent.vue";
 import GroupMembers from "../components/messages/GroupsView/GroupMembersInSection.vue"
 import GroupView from "../components/messages/GroupsView/GroupView.vue";
+import AddUser from "../components/messages/GroupsEdit/AddUser.vue";
 
 
 const routes = [
@@ -209,7 +210,7 @@ const routes = [
                 component: GroupsView
             },
             {
-                path: '/groups/:groupId',
+                path: '/group/:groupId',
                 name: 'GroupView',
                 component: GroupView,
                 props: true
@@ -223,6 +224,7 @@ const routes = [
                 path: '/groups/edit',
                 name: 'GroupsEdit',
                 component: GroupsEdit,
+                props: true,
                 children: [
                     {
                         path: '/groups/edit/addTaskInSections',
@@ -238,6 +240,11 @@ const routes = [
                         path: '/groups/edit/addEventInSections',
                         name:   'AddEvent',
                         component: AddEvent
+                    },
+                    {
+                        path: '/groups/edit/addUsers',
+                        name: 'AddUser',
+                        component: AddUser
                     }
                 ]
             },
