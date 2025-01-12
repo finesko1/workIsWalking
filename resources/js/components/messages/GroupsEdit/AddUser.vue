@@ -99,7 +99,7 @@ import { useRouter } from "vue-router";
                     preferredUserData.value = {
                         preferredUserId: userId,
                     }
-                    await axios.post(`/groups/${groupId.value}/addPreferredFriends`, preferredUserData.value)
+                    await axios.post(`/group/${groupId.value}/addPreferredFriends`, preferredUserData.value)
                     await fetchGetFriends()
                 } catch (e) {
                     if (e.response) {

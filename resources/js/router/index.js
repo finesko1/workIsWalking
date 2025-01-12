@@ -38,6 +38,8 @@ import AddEvent from "../components/messages/GroupsEdit/AddEvent.vue";
 import GroupMembers from "../components/messages/GroupsView/GroupMembersInSection.vue"
 import GroupView from "../components/messages/GroupsView/GroupView.vue";
 import AddUser from "../components/messages/GroupsEdit/AddUser.vue";
+import EditUserRole from "../components/messages/GroupsEdit/EditUserRole.vue";
+import TaskDetails from "../components/messages/GroupsEdit/TaskDetails.vue";
 
 
 const routes = [
@@ -245,6 +247,11 @@ const routes = [
                         path: '/groups/edit/addUsers',
                         name: 'AddUser',
                         component: AddUser
+                    },
+                    {
+                        path: '/groups/edit/EditUserRole.vue',
+                        name: 'EditUserRole.vue',
+                        component: EditUserRole
                     }
                 ]
             },
@@ -253,7 +260,13 @@ const routes = [
                 name: 'GroupMembers',
                 component: GroupMembers,
                 props: true
-            }
+            },
+            {
+                path: '/groups/:groupId/taskDetails',
+                name: 'TaskDetails',
+                component: TaskDetails,
+                props: true
+            },
         ]
     },
     {

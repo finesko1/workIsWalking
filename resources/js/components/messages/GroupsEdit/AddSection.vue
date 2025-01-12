@@ -14,12 +14,12 @@
             <div class="p-4">
                 <div class="flex gap-2 items-center">
                     <p>Введите название раздела:</p>
-                    <input type="text" placeholder="раздел 1" v-model="materialSectionName"
+                    <input type="text" placeholder="раздел 1" v-model="sectionName"
                            class="p-1 border border-gray-200 rounded-md hover:border-gray-400"/>
                 </div>
                 <div class="flex justify-center mt-4">
                     <button
-                        @click="sendMaterialSectionName"
+                        @click="sendSectionName"
                         class="bg-cyan-600 rounded-md py-2 px-4 hover:scale-95 transition-transform duration-200">
                         Добавить
                     </button>
@@ -35,14 +35,14 @@ import {ref} from "vue";
 export default {
     name: 'AddSection',
     setup(props, {emit}) {
-        const materialSectionName = ref('');
-        const sendMaterialSectionName = () => {
-            emit('getMaterialSectionName', materialSectionName.value)
+        const sectionName = ref('');
+        const sendSectionName = () => {
+            emit('getSectionName', sectionName.value)
         }
 
         return {
-            sendMaterialSectionName,
-            materialSectionName
+            sendSectionName,
+            sectionName
         }
     }
 }

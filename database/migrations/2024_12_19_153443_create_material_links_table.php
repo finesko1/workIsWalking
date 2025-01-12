@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('material_id')->nullable(false);
             $table->string('filename')->nullable(false);
+            $table->string('access_users')->default('all');
             $table->timestamps();
 
             $table->foreign('material_id')->references('id')->on('materials')->onDelete('cascade');

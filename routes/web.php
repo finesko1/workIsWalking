@@ -119,7 +119,6 @@ Route::get('/groups/edit', function() {
 Route::post('/groups/create', [GroupsController::class, 'create'])->name('group.create');
 // Получение данных о группах пользователя
 Route::get('/groups/all', [GroupsController::class, 'showGroups'])->name('groups.show'); // название групп + количество пользователей
-Route::get('/group/{groupId}/countUsers', [GroupController::class, 'countUsers'])->name('countUsers.show'); // количество пользователей
 Route::get('/group/{groupId}/users', [GroupController::class, 'users'])->name('users.show');
 Route::get('/group/{groupId}/materials', [GroupController::class, 'getMaterials'])->name('materials.show');
 Route::get('/group/{groupId}/tasks', [GroupController::class, 'getTasks'])->name('tasks.show');
@@ -129,12 +128,15 @@ Route::get('/group/{groupId}/preview/{path}', [GroupController::class, 'previewF
 Route::get('/group/{groupId}/checkChat', [GroupController::class, 'checkChat'])->name('chat.check');
 Route::post('/group/{groupId}/save', [GroupController::class, 'saveChanges'])->name('group.save'); // сохранение изменений в группе
 Route::get('/group/{groupId}/getData', [GroupController::class, 'getData'])->name('group.get'); // получение данных группы при изменении
-Route::get('/group/{groupId}/getMaterialData', [GroupController::class, 'getMaterialData'])->name('group.get'); // получение материалов группы
+Route::get('/group/{groupId}/getMaterialData', [GroupController::class, 'getMaterialData'])->name('groupMaterials.get'); // получение материалов группы
+Route::get('/group/{groupId}/getTaskData', [GroupController::class, 'getTaskData'])->name('groupTasks.get'); // получение материалов группыnpm run d
 Route::get('/group/{groupId}/checkRole', [GroupController::class, 'checkRole'])->name('role.check'); // получение роли в группе
 Route::get('/group/{groupId}/getPreferredFriends', [GroupController::class, 'getPreferredFriends'])->name('preferredFriends.get'); // получение доступных для добавления в группу пользователей
 Route::post('/group/{groupId}/addPreferredFriends', [GroupController::class, 'addPreferredFriends'])->name('preferredFriends.add'); // добавление в группу пользователя
-
-
+Route::delete('/group/{groupId}/{userId}/kickUser', [GroupController::class, 'kickUser'])->name('user.del'); // удаление пользователя из группы / выход из группы
+Route::post('/group/{groupId}/{userId}/updateRole', [GroupController::class, 'roleUpdate'])->name('role.update'); // удаление пользователя из группы / выход из группы
+Route::post('/group/{groupId}/task/{taskName}/user/solution', [GroupController::class, 'saveUserSolution']);
+Route::get('/group/{groupId}/{sectionName}/{taskName}/users', [GroupController::class, 'getAccessUsers']);
 
 Route::get('/{any}', function () {
     return view('welcome');

@@ -39,7 +39,8 @@ class CheckAuthController extends Controller
                 'user' => [
                     'login' => $user->login,
                     'email' => $user->email,
-                    'image_url' => $imageUrl ?? null
+                    'image_url' => $imageUrl ?? null,
+                    'id' => $user->id ?? null
                 ]
             ], 200);
         } else {

@@ -2,6 +2,7 @@
 
 namespace App\Models\User;
 
+use App\Models\Group\TaskMaterialDeadline;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -69,5 +70,10 @@ class User extends Authenticatable implements AuthenticatableContract, MustVerif
         return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
             ->wherePivotIn('status', ['blocked', 'blockIt'])
             ->where('users.id', '!=', auth()->id());
+    }
+
+    public function taskMaterialDeadlines()
+    {
+        return $this->hasMany(TaskMaterialDeadline::class, 'user_id', 'id');
     }
 }

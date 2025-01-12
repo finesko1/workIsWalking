@@ -8,13 +8,28 @@ use Illuminate\Database\Eloquent\Model;
 class Material_links extends Model
 {
     use HasFactory;
+
     protected $table = 'material_links';
+
     protected $fillable = [
         'material_id',
-        'filename'
+        'filename',
+        'access_users'
     ];
 
-    public function material() {
+    /**
+     * Связь с моделью Material.
+     */
+    public function material()
+    {
         return $this->belongsTo(Material::class, 'material_id');
+    }
+
+    /**
+     * Связь с моделью TaskMaterialDeadline.
+     */
+    public function deadlines()
+    {
+        return $this->hasMany(TaskMaterialDeadline::class, 'material_link_id', 'id');
     }
 }

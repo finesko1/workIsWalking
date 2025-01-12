@@ -2,10 +2,11 @@
     <div class="flex flex-col min-h-screen bg-neutral-300">
         <header class="rounded-t-lg top-0 left-0 w-full p-2 bg-cyan-800 flex justify-between items-center text-lg border-b-2 border-cyan-950">
             <router-link to="/">
-                <img src="/public/icons/logo.png" alt="Main icon" class="w-14 h-14" />
+                <img src="/public/icons/logo.png" alt="Main icon" class="w-10 h-10 sm:w-14 sm:h-14" />
             </router-link>
             <nav>
-                <ul class="flex space-x-1 text-white justify-center items-center">
+                <ul class="flex flex-wrap space-x-1 text-white justify-center items-center">
+<!--                    Профиль-->
                     <li v-if="isAuthenticated" class="group relative">
                         <router-link to="/profile" class="flex items-center group transition-all delay-100 duration-300 ease-in">
                             <div class="flex items-center">
@@ -25,6 +26,7 @@
                             </div>
                         </router-link>
                     </li>
+<!--                    Друзья-->
                     <li v-if="isAuthenticated" class="group relative">
                         <router-link to="/friendship" class="flex items-center group transition-all delay-100 duration-300 ease-in">
                             <div class="flex items-center justify-center h-14 overflow-hidden border border-cyan-900 group-hover:scale-95 transform transition-all delay-100 duration-300 ease-in relative hover:shadow-inner group-hover:border-cyan-800 group-hover:shadow-cyan-900 rounded-2xl">
@@ -36,6 +38,7 @@
                             </div>
                         </router-link>
                     </li>
+<!--                    Группы-->
                     <li v-if="isAuthenticated" class="group relative">
                         <router-link to="/groups" class="flex items-center group transition-all delay-100 duration-300 ease-in">
                             <div class="flex items-center justify-center w-14 h-14 overflow-hidden border border-cyan-900 group-hover:scale-95 transform transition-all delay-100 duration-300 ease-in relative hover:shadow-inner group-hover:border-cyan-800 group-hover:shadow-cyan-900 rounded-2xl">
@@ -46,6 +49,7 @@
                             </div>
                         </router-link>
                     </li>
+<!--                    Главная-->
                     <li class="group relative active">
                         <router-link to="/"
                                      class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
@@ -59,6 +63,7 @@
                             <!--                            <img src="/public/icons/whiteWolf.png" alt="siteLogo" class="size-6 hidden group-hover:block delay-100 duration-300" />-->
                         </router-link>
                     </li>
+<!--                    Вход-->
                     <li v-if="!isAuthenticated" class="group relative">
                         <router-link to="/login"
                                      class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
@@ -71,6 +76,7 @@
                             </svg>
                         </router-link>
                     </li>
+<!--                    Контакты-->
                     <li class="group relative">
                         <router-link to="/contacts"
                                      class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">
@@ -84,6 +90,7 @@
                             </svg>
                         </router-link>
                     </li>
+<!--                    Выход-->
                     <li v-if="isAuthenticated" class="group relative">
                         <button type="submit" @click="handleLogout"
                                 class="flex items-center justify-center pl-0 py-2 rounded border border-cyan-900 hover:shadow-inner hover:shadow-cyan-900 hover:border-cyan-800 transform transition-transform duration-300 delay-100 ease-in-out w-36 h-12 group-hover:scale-95">

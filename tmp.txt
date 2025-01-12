@@ -1,46 +1,389 @@
-$validatedData = $request->validate([
-                'groupName' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                // Добавьте другие правила валидации по необходимости
-                'materials.*.file' => 'required|file|mimes:txt,doc,docx,pdf,jpg,png|max:5120', // Пример допустимых типов и размера файлов
-                'materials.*.isNew' => 'required|boolean',
-                'materials.*.isDelete' => 'required|boolean',
-            ]);
+<script>
+import {onMounted, ref} from "vue";
+    import AddTask from "@/components/messages/GroupsEdit/AddTask.vue";
+    import AddSection from "@/components/messages/GroupsEdit/AddSection.vue";
+    import AddEvent from "@/components/messages/GroupsEdit/AddEvent.vue";
+    import {showNotification} from "@/notifications.js";
+    import AddUser from "@/components/messages/GroupsEdit/AddUser.vue";
+    import {useUserStore} from "@/stores/user.js"
+    import {useRouter} from "vue-router";
+    import EditUserRole from "@/components/messages/GroupsEdit/EditUserRole.vue";
 
-            // Сохранение текстовых данных группы
-            $group = Group::updateOrCreate(
-                ['id' => $request->input('groupId')], // Предполагается, что вы передаете groupId для обновления
-                [
-                    'name' => $validatedData['groupName'],
-                    'description' => $validatedData['description'],
-                    // Добавьте другие поля по необходимости
-                ]
-            );
+    export default {
+        name: 'GroupsEdit',
+        components: {
+            EditUserRole,
+            AddTask,
+            AddSection,
+            AddEvent,
+            AddUser
+        },
+        props: ['groupId'],
+        setup(props, {emit}) {
+            const currentGroupId = ref(props.groupId || localStorage.getItem('groupId'));
+            // Ref-объекты для добавления файлов
+            const materialInputs = ref([]);
+            const taskInputs = ref([])
+            // Материалы группы
+            const materialSections = ref([]);
+            const taskSections = ref([])
+            // Пользователи группы
+            const users = ref([])
+            const usersCount = ref(0)
+            // Выпадающие меню добавления разделов
+            const addTaskForm = ref(false);
+            const addMaterialSectionForm = ref(false);
+            const addTaskSectionForm = ref(false);
+            const addEventForm = ref(false);
+            const addUserForm = ref(false);
+            // Видимость секций
+            const showMaterialSection = ref(false);
+            const showTaskSection = ref(false);
+            const showMessengerSection = ref(false);
+            const showUsersSection = ref(false);
+            const showEventsSection = ref(false);
+            const showEditUserRoleForm = ref(false)
+            const router = useRouter()
+            // Редактируемый пользователь
+            const currentUser = ref()
+            const myUser = ref()
+            const userStore = useUserStore()
+            // Модальное окно настройки доступа
+            const showAccessSettings = ref(false);
+            const currentAccessSectionIndex = ref(null);
+            const selectAllUsers = ref(true);
+            const selectedUsers = ref([]);
 
-            // Обработка файлов материалов
-            if ($request->has('materials')) {
-                foreach ($request->materials as $materialData) {
-                    if ($materialData['isDelete']) {
-                        // Логика удаления файла, если необходимо
-                        $material = Material::find($materialData['id']);
-                        if ($material) {
-                            Storage::disk('public')->delete($material->path);
-                            $material->delete();
-                        }
-                        continue;
-                    }
-
-                    if ($materialData['isNew'] && isset($materialData['file'])) {
-                        // Сохранение нового файла
-                        $path = $materialData['file']->store('materials', 'public');
-
-                        // Создание записи в базе данных
-                        Material::create([
-                            'group_id' => $group->id,
-                            'path' => $path,
-                            'info' => $path, // Или другая информация о файле
-                        ]);
-                    }
-                    // Добавьте логику для обновления существующих файлов, если необходимо
+            // Вызов меню выбора файлов-материалов
+            const addMaterialHandler = (sectionIndex) => {
+                if (materialInputs.value[sectionIndex]) {
+                    materialInputs.value[sectionIndex].click();
+                }
+            }// Вызов меню выбора файлов-заданий
+            const addTaskHandler = (sectionIndex) => {
+                if (taskInputs.value[sectionIndex]) {
+                    taskInputs.value[sectionIndex].click();
                 }
             }
+            // Обработка выбранных файлов в материалах
+            const addMaterialFileHandler = (sectionIndex, event) => {
+                const files = event.target.files;
+                for (const file of files) {
+                    materialSections.value[sectionIndex].materials.push({
+                        name: file.name,
+                        file: file,
+                        isNew: true,
+                        isDelete: false
+                    });
+                }
+                event.target.value = null;
+            };
+            // Обработка выбранных файлов в задачах
+            const addTaskFileHandler = (sectionIndex, event) => {
+                const files = event.target.files;
+                for (const file of files) {
+                    taskSections.value[sectionIndex].materials.push({
+                        name: file.name,
+                        file: file,
+                        isNew: true,
+                        isDelete: false
+                    });
+                }
+                event.target.value = null;
+            };
+
+            // Добавление раздела в материалы
+            const addMaterialSectionHandler = async (materialSectionName) => {
+                materialSections.value.push({
+                    sectionName: materialSectionName,
+                    materials: [],
+                    isNew: true,
+                    isDelete: false
+                })
+                addMaterialSectionForm.value = false
+            }
+            // Добавление раздела в задачи
+            const addTaskSectionHandler = async (taskSectionName) => {
+                taskSections.value.push({
+                    sectionName: taskSectionName,
+                    materials: [],
+                    isNew: true,
+                    isDelete: false,
+                    deadline: null,
+                    showCalendar: false,
+                    newDeadline: ''
+                });
+                addTaskSectionForm.value = false;
+            };
+            // Сохранение изменений в группе
+            // Сохранение изменений в группе
+            const saveChanges = async () => {
+                try {
+                    const formData = new FormData();
+                    let hasMaterials = false;
+                    let hasTasks = false;
+
+                    // Обработка материалов перед отправлением на сервер
+                    materialSections.value.forEach((section, sectionIndex) => {
+                        if (section.materials && section.materials.length > 0) {
+                            hasMaterials = true;
+                            formData.append(`materialSections[${sectionIndex}][sectionName]`, section.sectionName);
+                            formData.append(`materialSections[${sectionIndex}][isNew]`, section.isNew ? 1 : 0);
+                            formData.append(`materialSections[${sectionIndex}][isDelete]`, section.isDelete ? 1 : 0);
+
+                            section.materials.forEach((material, materialIndex) => {
+                                formData.append(`materialSections[${sectionIndex}][materials][${materialIndex}][materialName]`, material.name);
+                                formData.append(`materialSections[${sectionIndex}][materials][${materialIndex}][isNew]`, material.isNew ? 1 : 0);
+                                formData.append(`materialSections[${sectionIndex}][materials][${materialIndex}][isDelete]`, material.isDelete ? 1 : 0);
+
+                                if (material.file instanceof File) {
+                                    formData.append(`materialSections[${sectionIndex}][materials][${materialIndex}][file]`, material.file);
+                                }
+                            });
+                        }
+                    });
+
+                    // Обработка заданий перед отправлением на сервер
+                    taskSections.value.forEach((section, sectionIndex) => {
+                        if (section.materials && section.materials.length > 0) {
+                            hasTasks = true;
+                            formData.append(`taskSections[${sectionIndex}][sectionName]`, section.sectionName);
+                            formData.append(`taskSections[${sectionIndex}][isNew]`, section.isNew ? 1 : 0);
+                            formData.append(`taskSections[${sectionIndex}][isDelete]`, section.isDelete ? 1 : 0);
+                            formData.append(`taskSections[${sectionIndex}][deadline]`, section.deadline || '');
+
+                            section.materials.forEach((material, materialIndex) => {
+                                formData.append(`taskSections[${sectionIndex}][materials][${materialIndex}][materialName]`, material.name);
+                                formData.append(`taskSections[${sectionIndex}][materials][${materialIndex}][isNew]`, material.isNew ? 1 : 0);
+                                formData.append(`taskSections[${sectionIndex}][materials][${materialIndex}][isDelete]`, material.isDelete ? 1 : 0);
+                                formData.append(`taskSections[${sectionIndex}][materials][${materialIndex}][access_users]`, material.access_users || 'all');
+                                formData.append(`taskSections[${sectionIndex}][materials][${materialIndex}][deadline]`, section.deadline || 'all');
+
+                                if (material.file instanceof File) {
+                                    formData.append(`taskSections[${sectionIndex}][materials][${materialIndex}][file]`, material.file);
+                                }
+                            });
+                        }
+                    });
+
+                    // Отправка данных на сервер
+                    const response = await axios.post(`/group/${currentGroupId.value}/save`, formData);
+                    showNotification(response.data.message, 1, 1200);
+                    emit('close');
+                    await fetchGroupData();
+                } catch (e) {
+                    if (e.response) {
+                        showNotification(e.response.data.error, 0, 1500);
+                        console.log(e.response.data.errors);
+                    } else {
+                        console.log(e.message);
+                    }
+                }
+            };
+
+
+            // Форматирование даты
+            const formatDate = (date) => {
+                if (!date) return 'Без срока';
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                return new Date(date).toLocaleDateString('ru-RU', options);
+            };
+
+            // Переключение отображения календаря
+            const toggleDeadline = (sectionIndex) => {
+                taskSections.value[sectionIndex].showCalendar = !taskSections.value[sectionIndex].showCalendar;
+                if (!taskSections.value[sectionIndex].showCalendar) {
+                    taskSections.value[sectionIndex].newDeadline = taskSections.value[sectionIndex].deadline;
+                } else {
+                    taskSections.value[sectionIndex].newDeadline = taskSections.value[sectionIndex].deadline ? new Date(taskSections.value[sectionIndex].deadline).toISOString().substr(0, 10) : '';
+                }
+            };
+
+            // Сохранение срока сдачи
+            const saveDeadline = (sectionIndex) => {
+                const selectedDate = taskSections.value[sectionIndex].newDeadline;
+                if (selectedDate) {
+                    // Обновление локального состояния
+                    taskSections.value[sectionIndex].deadline = selectedDate;
+                    taskSections.value[sectionIndex].showCalendar = false;
+                }
+            };
+
+            // Отмена выбора срока сдачи
+            const cancelDeadline = (sectionIndex) => {
+                taskSections.value[sectionIndex].showCalendar = false;
+                taskSections.value[sectionIndex].newDeadline = taskSections.value[sectionIndex].deadline;
+            };
+
+
+
+            // Получение данных при редактировании группы
+            const fetchGroupData = async () => {
+                try {
+                    let time = new Date().getTime();
+                    const response = await axios.get(`/group/${currentGroupId.value}/getData?ts=${time}`);
+                    materialSections.value = response.data.materialSections || [];
+                    taskSections.value = response.data.taskSections.map(section => ({
+                        ...section,
+                        showCalendar: false,
+                        newDeadline: section.deadline ? new Date(section.deadline).toISOString().substr(0, 10) : ''
+                    })) || [];
+                    users.value = response.data.usersData || [];
+                    usersCount.value = response.data.countUsers || 0;
+                } catch (e) {
+                    if (e.response) {
+                        console.log(e.response.data);
+                    } else {
+                        console.log(e.message);
+                    }
+                }
+            };
+
+            // Изменение роли пользователя
+            const editRole = async (user) => {
+                try {
+                    currentUser.value = user
+                    showEditUserRoleForm.value = true
+                } catch (e) {
+                    if (e.response && e.response.data) {
+                        console.log(e.response.data)
+                    } else {
+                        console.log(e.message)
+                    }
+                }
+            }
+            // Закрытие окна изменения роли участника
+            const closeEditRoleUserForm = async() => {
+                showEditUserRoleForm.value = false
+                currentUser.value = null
+                await fetchGroupData()
+            }
+
+            // Удаление пользователя из группы
+            const deleteUser = async (userId) => {
+                try {
+                    await axios.delete(`/group/${currentGroupId.value}/${userId}/kickUser`)
+                    await fetchGroupData()
+                } catch (e) {
+                    if (e.response && e.response.data) {
+                        console.log(e.response.data)
+                    } else {
+                        console.log(e.message)
+                    }
+                }
+            }
+
+            // Открытие страницы пользователя
+            const open_homePage = async (userId) => {
+                //router.push({ name: 'FriendshipProfile', params: {userId: userId.id} });
+                router.push('/profile/' + userId.id);
+            }
+
+            // Закрытие меню добавления пользователя
+            const closeAddUserForm = async () => {
+                addUserForm.value = false;
+                await fetchGroupData()
+            }
+
+
+            // Открытие модального окна настройки доступа
+            const openAccessSettings = (sectionIndex, materialIndex) => {
+                currentAccessSectionIndex.value = { section: sectionIndex, material: materialIndex };
+                const material = taskSections.value[sectionIndex].materials[materialIndex];
+
+                if (material.access_users === 'all') {
+                    selectAllUsers.value = true;
+                    selectedUsers.value = [...users.value.map(user => user.id)];
+                } else {
+                    selectAllUsers.value = false;
+                    if (material.access_users) {
+                        selectedUsers.value = material.access_users.split(',').map(id => parseInt(id, 10));
+                    } else {
+                        selectedUsers.value = [];
+                    }
+                }
+
+                showAccessSettings.value = true;
+            };
+            // Закрытие модального окна настройки доступа
+            const closeAccessSettings = () => {
+                showAccessSettings.value = false;
+                currentAccessSectionIndex.value = null;
+            };
+            // Переключение выбора всех пользователей
+            const toggleSelectAllUsers = () => {
+                if (selectAllUsers.value) {
+                    selectedUsers.value = users.value.map(user => user.id);
+                } else {
+                    selectedUsers.value = [];
+                }
+            };
+            // Сохранение настроек доступа
+            const saveAccessSettings = () => {
+                const { section, material } = currentAccessSectionIndex.value;
+                if (section !== null && material !== null) {
+                    if (selectAllUsers.value) {
+                        taskSections.value[section].materials[material].access_users = 'all';
+                    } else {
+                        taskSections.value[section].materials[material].access_users = selectedUsers.value.join(',');
+                    }
+                    showAccessSettings.value = false;
+                    currentAccessSectionIndex.value = null;
+                }
+            };
+
+            onMounted(() => {
+                fetchGroupData();
+                userStore.checkAuth();
+                myUser.value = userStore.user;
+            });
+
+
+            return {
+                addTaskForm,
+                addMaterialSectionForm,
+                addTaskSectionForm,
+                addEventForm,
+                addUserForm,
+                addMaterialFileHandler,
+                showMaterialSection,
+                showTaskSection,
+                showMessengerSection,
+                showUsersSection,
+                showEventsSection,
+                saveChanges,
+                addMaterialHandler,
+                addMaterialSectionHandler,
+                addTaskSectionHandler,
+                materialSections,
+                materialInputs,
+                currentGroupId,
+                users,
+                usersCount,
+                open_homePage,
+                editRole,
+                deleteUser,
+                closeAddUserForm,
+                showEditUserRoleForm,
+                closeEditRoleUserForm,
+                currentUser,
+                myUser,
+                taskSections,
+                addTaskHandler,
+                addTaskFileHandler,
+                taskInputs,
+                openAccessSettings,
+                closeAccessSettings,
+                toggleSelectAllUsers,
+                saveAccessSettings,
+                showAccessSettings,
+                selectAllUsers,
+                selectedUsers,
+                formatDate,
+                toggleDeadline,
+                saveDeadline,
+                cancelDeadline
+            };
+        }
+    };
+</script>

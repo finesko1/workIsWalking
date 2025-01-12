@@ -3,7 +3,7 @@
         <div class="flex-col p-4 bg-white rounded-xl min-w-min relative">
             <header class="flex justify-center">
                 <h2 class="justify-center mx-10">
-                    Участники группы
+                    Участники группы - ({{ users.count || 0}})
                 </h2>
                 <button type='button'
                         @click="$emit('close')"
@@ -11,8 +11,8 @@
                     &#x2715;
                 </button>
             </header>
-            <ul>
-                <li v-for="(user, index) in users" :key="user.id" class="mb-1">
+            <ul class="my-4">
+                <li v-for="(user, index) in users" :key="user.id" class="m-1">
                     <div class="p-2 bg-neutral-400 rounded-xl inline-flex items-center w-full justify-between">
                         <div class="flex items-center mr-3">
                             <img v-if="user.image_url" :src="user.image_url" alt="User Image"
@@ -52,6 +52,7 @@ export default {
             try {
                 let response = await axios.get(`/group/${props.groupId}/users`)
                 users.value = response.data.usersData
+                users.value.count = response.data.countUsers
             } catch (e) {
                 if (e.response) {
                     showNotification(e.response.error, 0, 1000)
