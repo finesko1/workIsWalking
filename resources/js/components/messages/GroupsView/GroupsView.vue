@@ -61,6 +61,7 @@ import {showNotification} from "@/notifications.js";
             // Поиск информации о группах
             const fetchGroupData = async () => {
                 try {
+                    await new Promise(resolve => setTimeout(resolve,200));
                     let response = await axios.get('/groups/all');
                     groupsData.value = response.data.groupsData || [];
                     await new Promise(resolve => setTimeout(resolve,200));

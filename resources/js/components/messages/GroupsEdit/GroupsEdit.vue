@@ -867,9 +867,9 @@ export default {
         const openTaskDetail = async (sectionTaskIndex, materialTaskIndex) => {
             currentSectionName.value = taskSections.value[sectionTaskIndex].sectionName
             currentTaskName.value = taskSections.value[sectionTaskIndex].materials[materialTaskIndex].name
+            showTaskDetail.value = true;
             let response = await axios.get(`/group/${currentGroupId.value}/${currentSectionName.value}/${currentTaskName.value}/users`);
             currentUsers.value = response.data.usersData
-            showTaskDetail.value = true;
         }
 
         const closeTaskDetail = async () => {

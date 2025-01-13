@@ -69,6 +69,9 @@ Route::get('/profile', function() {
 Route::get('/profile/profileSettings', function() {
     return view('welcome');
 });
+Route::get('/profile/personalDataSettings', function() {
+    return view('welcome');
+});
 Route::get('/profile/profileSettings/show', [UserProfileController::class, 'showProfileData'])->name('profile.show');
 Route::post('/profile/profileSettings/update', [UserProfileController::class, 'updateProfileData'])->name('profile.update');
 

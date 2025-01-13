@@ -330,34 +330,45 @@ class GroupController extends Controller
                 return response()->json(['error' => 'Недостаточно прав']);
             }
 
+            // Получение MaterialId по названию раздела
             $taskSection = Material::where('section', $sectionName)->first();
             if (!$taskSection) {
-                return response()->json(['error' => "Не существует задания $sectionName"], 200, [], JSON_UNESCAPED_UNICODE);
+                return response()->json(['error' => "Не существует задания $sectionName"], 404);
             }
-            $materialIds = Material_links::where('material_id', $taskSection->id)->pluck('id');
 
-            $accessUsers = $materialIds->map(function($materialId) use ($groupId, $sectionName) {
-                $taskMaterialDeadlines = TaskMaterialDeadline::where('material_link_id', $materialId)->get();
-                $taskDirectory = 'groups/' . $groupId . '/tasks/' . $sectionName . '/answers/';
+            // Получение материалов раздела по MaterialId (возможен массив)
+            $materialLinks = Material_links::where('material_id', $taskSection->id)
+                ->where('filename', $taskName)->get();
+            if ($materialLinks->isEmpty()) {
+                return response()->json(['error' => 'Связь с материалом не найдена'], 404);
+            }
 
-                return $taskMaterialDeadlines->map(function ($deadline) use ($taskDirectory) {
-                    $userSolutions = UserSolution::where('task_material_deadline_id', $deadline->id)->get();
-                    $user = User::find($deadline->user_id);
-                    $userData = $this->getUsersData($user);
+            $accessUsersData = [];
 
-                    $files = $userSolutions->map(function ($solution) use ($taskDirectory) {
-                        $filePath = $taskDirectory . $solution->user_id . '/' . $solution->solution_file;
-                        return Storage::disk('public')->exists($filePath) ? Storage::disk('public')->url($filePath) : null;
-                    })->filter();
+            foreach ($materialLinks as $materialLink) {
+                $accessUsers = $materialLink->access_users;
+                $userIds = $accessUsers === 'all'
+                    ? User_Groups::where('group_id', $groupId)->pluck('user_id')
+                    : array_map('trim', explode(',', $accessUsers));
 
-                    return [
+                foreach ($userIds as $userId) {
+                    $userData = $this->getUsersData(User::find($userId));
+                    $directoryPath = "groups/{$groupId}/tasks/{$sectionName}/answers/{$userId}";
+
+                    // Get all files in the user's solution directory
+                    $files = Storage::disk('public')->files($directoryPath);
+                    $fileUrls = collect($files)->map(function ($filePath) {
+                        return Storage::disk('public')->url($filePath);
+                    });
+
+                    $accessUsersData[] = [
                         'userData' => $userData,
-                        'files' => $files,
+                        'files' => $fileUrls,
                     ];
-                });
-            });
+                }
+            }
 
-            return response()->json(['message' => 'Запрос выполнен успешно', 'usersData' => $accessUsers], 200);
+            return response()->json(['message' => 'Запрос выполнен успешно', 'usersData' => $accessUsersData], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Ошибка при получении данных заданий', 'errors' => $e->getMessage()], 500);
         }
@@ -366,51 +377,68 @@ class GroupController extends Controller
     // решение пользователя
     public function saveUserSolution(Request $request, $groupId, $sectionName)
     {
-        $request->validate([
-            'solution_files.*' => 'required|file|mimes:pdf,doc,docx',
-        ]);
+        // Validate incoming files
+//        $request->validate([
+//            'solution_files.*' => 'required|file|mimes:pdf,doc,docx,ppt,pptx|max:2048',
+//        ]);
 
         $taskSection = Material::where('section', $sectionName)->first();
         if (!$taskSection) {
-            return response()->json(['error' => "Не существует задания $sectionName"], 200, [], JSON_UNESCAPED_UNICODE);
+            return response()->json(['error' => "Не существует задания $sectionName"], 404);
         }
-        $materialId = Material_links::where('material_id', $taskSection->id)->first()->id;
-        $userId = auth()->user()->id;
 
-        $taskMaterialDeadline = TaskMaterialDeadline::where('material_link_id', $materialId)
+        $materialLinks = Material_links::where('material_id', $taskSection->id)->get();
+        if ($materialLinks->isEmpty()) {
+            return response()->json(['error' => 'Связь с материалом не найдена'], 404);
+        }
+
+        $userId = auth()->user()->id;
+        $taskMaterialDeadlines = TaskMaterialDeadline::whereIn('material_link_id', $materialLinks->pluck('id'))
             ->where('user_id', $userId)
-            ->first();
-        if (!$taskMaterialDeadline) {
-            return response()->json(['error' => 'Срок для этого задания не найден, либо у вас нет к нему доступа'], 404, [], JSON_UNESCAPED_UNICODE);
+            ->get();
+
+        if ($taskMaterialDeadlines->isEmpty()) {
+            return response()->json(['error' => 'Срок для этого задания не найден, либо у вас нет к нему доступа'], 404);
         }
 
         if ($request->hasFile('solution_files')) {
-            $directoryPath = "groups/{$groupId}/tasks/{$sectionName}/answers/{$userId}";
+            foreach ($taskMaterialDeadlines as $taskMaterialDeadline) {
+                $directoryPath = "groups/{$groupId}/tasks/{$sectionName}/answers/{$userId}";
 
-            // Удаление существующих файлов в каталоге
-            Storage::disk('public')->deleteDirectory($directoryPath);
+                // Delete existing files in the directory
+                Storage::disk('public')->deleteDirectory($directoryPath);
 
-            // Удаление существующих записей решения пользователя
-            UserSolution::where('user_id', $userId)
-                ->where('task_material_deadline_id', $taskMaterialDeadline->id)
-                ->delete();
+                // Delete existing user solution records
+                UserSolution::where('user_id', $userId)
+                    ->where('task_material_deadline_id', $taskMaterialDeadline->id)
+                    ->delete();
 
-            $files = $request->file('solution_files');
-            foreach ($files as $file) {
-                // Сохранение нового файла
-                $filePath = $file->storeAs($directoryPath, $file->getClientOriginalName(), 'public');
+                $files = $request->file('solution_files');
+                foreach ($files as $file) {
+                    // Check for file upload errors
+                    if ($file->isValid()) {
+                        // Store the new file
+                        $filePath = $file->storeAs($directoryPath, $file->getClientOriginalName(), 'public');
 
-                // Сохранение информации о новом решении в БД
-                $solution = new UserSolution();
-                $solution->user_id = $userId;
-                $solution->task_material_deadline_id = $taskMaterialDeadline->id;
-                $solution->solution_file = basename($filePath);
-                $solution->save();
+                        // Save new solution information in the database
+                        $solution = new UserSolution();
+                        $solution->user_id = $userId;
+                        $solution->task_material_deadline_id = $taskMaterialDeadline->id;
+                        $solution->solution_file = basename($filePath);
+                        $solution->submitted_at = now();
+                        $solution->save();
+                    } else {
+                        return response()->json(['error' => 'Ошибка загрузки файла: ' . $file->getError()], 400);
+                    }
+                }
             }
 
-            return response()->json(['message' => 'Решения успешно обновлены'], 200, [], JSON_UNESCAPED_UNICODE);
+            return response()->json(['message' => 'Решения успешно обновлены'], 200);
         }
+
+        return response()->json(['error' => 'Файлы не были загружены'], 400);
     }
+
 
     // Просмотр файла на сервере
     public function previewFile($groupId, $filePath)
@@ -538,11 +566,12 @@ class GroupController extends Controller
                                         $file->storeAs($directoryPath, $decodedMaterialName, 'public');
 
                                         // Создание записи о файле в БД
-                                        $sectionId = Material::where('section', $decodedMaterialName)->first();
+                                        $sectionId = Material::where('section', $decodedSectionName)->first();
                                         if ($sectionId) {
                                             Material_links::create([
                                                 'material_id' => $sectionId->id,
                                                 'filename' => $decodedMaterialName,
+                                                'access_users' => 'all',
                                             ]);
                                         }
                                     }

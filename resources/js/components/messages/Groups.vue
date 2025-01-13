@@ -99,6 +99,7 @@ export default {
 
         const closeCreateGroup = () => {
             router.push('/groups');
+            window.location.reload()
         };
 
         return {

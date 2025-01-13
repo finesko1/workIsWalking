@@ -45,13 +45,10 @@
                         <li v-for="(taskSection, taskSectionIndex) in groupData.taskSections" :key="taskSectionIndex">
                             <div class="flex justify-between">
                                 <div>{{ taskSection.sectionName }}:</div>
-                                <div class="">
-                                    Состояние ответа
-                                </div>
+                                <div>Состояние ответа</div>
                             </div>
-                            <ul class="list-disc ml-12 hover:bg-neutral-300 p-2 rounded-md">
-                                <li v-for="(material, materialIndex) in taskSection.materials" :key="materialIndex"
-                                    class="flex items-center space-x-2">
+                            <ul class="list-disc ml-2 hover:bg-neutral-300 p-2 rounded-md">
+                                <li v-for="(material, materialIndex) in taskSection.materials" :key="materialIndex" class="flex items-center space-x-2">
                                     <span @click="previewFile('tasks', taskSection.sectionName, material.name)"
                                           class="hover:underline hover:underline-offset-4 hover:decoration-blue-400 hover:decoration-2 hover:italic hover:cursor-pointer">
                                         {{ material.name }}
@@ -63,7 +60,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                     </svg>
                                     <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="w-6 h-6">
-                                        linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </li>
                             </ul>
@@ -103,7 +100,7 @@
             </div>
             <div>
                 <button type="button"
-                        @click="deleteUser(user.id)"
+                        @click="deleteUser(currentUserId)"
                         class="text-sm italic text-gray-400 hover:text-red-600">
                     Покинуть группу
                 </button>
@@ -125,6 +122,7 @@ import { useRouter } from "vue-router";
 import { showNotification } from "@/notifications.js";
 import { renderAsync } from 'docx-preview';
 import TaskDetails from "@/components/messages/GroupsEdit/TaskDetails.vue";
+import {useUserStore} from "@/stores/user.js";
 
 export default {
     name: 'GroupView',
@@ -149,7 +147,8 @@ export default {
         });
         const currentGroupId = ref(props.groupId || localStorage.getItem('groupId'));
         const currentGroupName = ref(props.groupName || localStorage.getItem('groupName'));
-
+        const currentUserId = ref(null)
+        const userStore = useUserStore()
 
         // Получение данных группы: материалы, задания и прочее
         const fetchGroupData = async () => {
@@ -177,6 +176,9 @@ export default {
         };
 
         onMounted(() => {
+            userStore.checkAuth()
+            currentUserId.value = userStore.user.id
+
             if (!currentGroupId.value) {
                 console.error('Group ID отсутствует');
             } else {
@@ -231,16 +233,16 @@ export default {
         }
 
         const uploadSolution = async (taskSectionIndex, materialIndex) => {
-            const formData = new FormData();
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = '.pdf,.doc,.docx,.pptx,.ppt';
             fileInput.multiple = true;
             fileInput.onchange = async (event) => {
+                const formData = new FormData();
                 const files = event.target.files;
                 if (files.length > 0) {
                     for (let i = 0; i < files.length; i++) {
-                        formData.append('solution_files[]', files[i]); // Append each file to the formData
+                        formData.append('solution_files[]', files[i]);
                     }
                     try {
                         const response = await axios.post(`/group/${currentGroupId.value}/task/${groupData.value.taskSections[taskSectionIndex].sectionName}/user/solution`, formData);
@@ -275,7 +277,8 @@ export default {
             deleteUser,
             uploadSolution,
             closeGroupEditHandler,
-            showTaskDetail
+            showTaskDetail,
+            currentUserId
         }
     }
 }

@@ -199,7 +199,9 @@ export default {
         async saveChanges() {
             try {
                 this.errors = {};
-                this.personalData.phone_number = this.cleanPhoneNumber(this.personalData.phone_number);
+                if (this.personalData.phone_number) {
+                    this.personalData.phone_number = this.cleanPhoneNumber(this.personalData.phone_number) ?? null;
+                }
                 const response = await axios.post('/profile/personalData/update', this.personalData);
                 showNotification(response.data.message, 1, 3000);
                 await this.fetchPersonalData();

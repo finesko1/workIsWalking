@@ -41,7 +41,6 @@
     </div>
 </template>
 
-
 <script>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
@@ -59,10 +58,10 @@ export default {
         const groupId = ref(props.groupId || localStorage.getItem('groupId'));
 
         const flattenedUsers = computed(() => {
-            return props.users.flatMap(userArray => userArray.map(user => ({
+            return props.users.map(user => ({
                 ...user.userData,
-                files: user.files // Добавляем файлы к данным пользователя
-            })));
+                files: user.files // Add files to user data
+            }));
         });
 
         const goBack = () => {

@@ -181,7 +181,21 @@ class UserProfileController extends Controller
 
     public function updatePersonalData(Request $request) {
         $user = Auth::user();
-        $personalData = PersonalData::findOrFail($user->id);
+
+        if (!$user) {
+            return response()->json(['error' => 'Ошибка! Пользователь не авторизован'], 401);
+        }
+
+        // Попытка получить или создать запись PersonalData
+        $personalData = $user->personalData()->firstOrCreate([
+            'user_id' => $user->id
+        ], [
+            'first_name' => '',
+            'second_name' => '',
+            'phone_number' => null,
+            'city' => null,
+        ]);
+
         $validatedData = $request->validate([
             'first_name' => 'required|string|regex:/^[А-ЯЁ][а-яё]+$/u|max:50',
             'second_name' => 'required|string|regex:/^[А-ЯЁ][а-яё]+$/u|max:50',
@@ -189,8 +203,12 @@ class UserProfileController extends Controller
             'city' => 'nullable|string|max:255',
         ]);
 
-        // Используем updateOrCreate для обновления или создания записи
-        $personalData->update($validatedData);
+        $personalData->update([
+            'first_name' => $validatedData['first_name'],
+            'second_name' => $validatedData['second_name'],
+            'phone_number' => $validatedData['phone_number'] ?? null,
+            'city' => $validatedData['city'] ?? null,
+        ]);
 
         return response()->json(['message' => 'Данные успешно сохранены!', 'personalData' => $personalData], 200);
     }
